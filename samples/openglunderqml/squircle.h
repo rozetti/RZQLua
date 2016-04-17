@@ -36,10 +36,11 @@
 
 #include <QtQuick/QQuickItem>
 #include <QtGui/QOpenGLShaderProgram>
-#include <QtGui/QOpenGLFunctions>
+
+#include "RZQLua.h"
 
 //! [1]
-class SquircleRenderer : public QObject, protected QOpenGLFunctions
+class SquircleRenderer : public QObject
 {
     Q_OBJECT
 public:
@@ -58,6 +59,7 @@ private:
     qreal m_t;
     QOpenGLShaderProgram *m_program;
     QQuickWindow *m_window;
+    RZQLua m_lua;
 };
 //! [1]
 

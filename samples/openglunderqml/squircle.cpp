@@ -84,7 +84,8 @@ void Squircle::cleanup()
 
 SquircleRenderer::SquircleRenderer() :
     m_t(0),
-    m_program(0)
+    m_program(0),
+    m_lua(":/scenegraph/openglunderqml/squircle.lua")
 {
 }
 
@@ -111,8 +112,6 @@ void Squircle::sync()
 void SquircleRenderer::paint()
 {
     if (!m_program) {
-        initializeOpenGLFunctions();
-
         m_program = new QOpenGLShaderProgram();
         m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
                                            "attribute highp vec4 vertices;"
@@ -149,17 +148,7 @@ void SquircleRenderer::paint()
     m_program->setAttributeArray(0, GL_FLOAT, values, 2);
     m_program->setUniformValue("t", (float) m_t);
 
-    glViewport(0, 0, m_viewportSize.width(), m_viewportSize.height());
-
-    glDisable(GL_DEPTH_TEST);
-
-    glClearColor(0, 0, 0, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    m_lua.vcall("render", m_viewportSize.width(), m_viewportSize.height());
 
     m_program->disableAttributeArray(0);
     m_program->release();
