@@ -17,30 +17,30 @@ extern "C"
 
 // todo crz: coalesce this lot
 
-struct RZLuaClassBase
-{
-    virtual ~RZLuaClassBase() {}
-    lua_State *m_luaState;
-    std::vector<std::unique_ptr<RZLuaFunctionBase>> m_functions;
-    std::string m_className;
+//struct RZLuaClassBase
+//{
+//    virtual ~RZLuaClassBase() {}
+//    lua_State *m_luaState;
+//    std::vector<std::unique_ptr<RZLuaFunctionBase>> m_functions;
+//    std::string m_className;
 
-    RZLuaClassBase(lua_State *state,
-                   std::string const &class_name) :
-        m_luaState(state),
-        m_className(class_name)
-    {
-    }
+//    RZLuaClassBase(lua_State *state,
+//                   std::string const &class_name) :
+//        m_luaState(state),
+//        m_className(class_name)
+//    {
+//    }
 
-    RZLuaClassBase(RZLuaClassBase &&other) :
-        m_luaState(other.m_luaState),
-        m_functions(std::move(other.m_functions)),
-        m_className(other.m_className)
-    {
-        other.m_luaState = 0;
-        other.m_functions.clear();
-        other.m_className.clear();
-    }
-};
+//    RZLuaClassBase(RZLuaClassBase &&other) :
+//        m_luaState(other.m_luaState),
+//        m_functions(std::move(other.m_functions)),
+//        m_className(other.m_className)
+//    {
+//        other.m_luaState = 0;
+//        other.m_functions.clear();
+//        other.m_className.clear();
+//    }
+//};
 
 class RZLuaClasses
 {
@@ -93,7 +93,7 @@ public:
     template <typename TRet, typename... TArgs>
     void declare(const std::string &name, std::function<TRet(TArgs...)> fun)
     {
-        constexpr int arity = _arity<TRet>::value;
+        constexpr int arity = rz::detail::args_count<TRet>::value;
 
         auto f = new RZLuaFreeFunction<arity, TRet, TArgs...>(m_luaState, name, fun);
         auto ptr = std::unique_ptr<RZLuaFunctionBase>(f);

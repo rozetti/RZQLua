@@ -6,13 +6,14 @@ int dispatcher(lua_State *L);
 
 class RZLuaFunctionBase
 {
+    lua_State *m_luaState;
     std::string m_className;
     std::string m_functionName;
     std::string m_desc;
-    lua_State *m_luaState;
 
 public:
-    RZLuaFunctionBase()
+    RZLuaFunctionBase() :
+        m_luaState(nullptr)
     {
     }
 
@@ -71,6 +72,14 @@ public:
         RZLuaFunctionBase(l, className, functionName, desc), m_function(function)
     {
     }
+
+    RZLuaFunctionBaseT(RZLuaFunctionBaseT &&other) :
+        RZLuaFunctionBase(other),
+        m_function(other.m_function)
+    {
+    }
+
+    type function() const { return m_function; }
 };
 
 

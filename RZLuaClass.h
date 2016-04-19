@@ -4,6 +4,31 @@
 #include "RZLuaFunctionBase.h"
 #include "RZLuaMemberFunction.h"
 
+struct RZLuaClassBase
+{
+    virtual ~RZLuaClassBase() {}
+    lua_State *m_luaState;
+    std::vector<std::unique_ptr<RZLuaFunctionBase>> m_functions;
+    std::string m_className;
+
+    RZLuaClassBase(lua_State *state,
+                   std::string const &class_name) :
+        m_luaState(state),
+        m_className(class_name)
+    {
+    }
+
+    RZLuaClassBase(RZLuaClassBase &&other) :
+        m_luaState(other.m_luaState),
+        m_functions(std::move(other.m_functions)),
+        m_className(other.m_className)
+    {
+        other.m_luaState = 0;
+        other.m_functions.clear();
+        other.m_className.clear();
+    }
+};
+
 template <typename T, typename... Funs>
 class RZLuaClass : public RZLuaClassBase
 {
@@ -53,23 +78,23 @@ public:
         declare_functions(funcs...);
     }
 
-    template <typename T, typename F, typename... Funs>
-    RZLuaClass(lua_State *state,
-               T *t,
-               std::string const &class_name,
-               std::string const &name,
-               F func,
-               Funs... funcs) :
-        RZLuaClassBase(state, class_name),
-        m_nativeClass(t)
-    {
-        lua_createtable(state, 0, 0);
-        lua_setglobal(state, class_name.c_str());
+//    template <typename F, typename... Funs>
+//    RZLuaClass(lua_State *state,
+//               T *t,
+//               std::string const &class_name,
+//               std::string const &name,
+//               F func,
+//               Funs... funcs) :
+//        RZLuaClassBase(state, class_name),
+//        m_nativeClass(t)
+//    {
+//        lua_createtable(state, 0, 0);
+//        lua_setglobal(state, class_name.c_str());
 
-        declare_functions(name.c_str(), func, funcs...);
-    }
+//        declare_functions(name.c_str(), func, funcs...);
+//    }
 
-    template <typename T>
+   // template <typename T>
     RZLuaClass(lua_State *state,
                T *t,
                std::string const &class_name) :

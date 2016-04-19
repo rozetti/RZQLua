@@ -8,6 +8,13 @@
 #include <string>
 #include <sstream>
 
+extern "C"
+{
+#include "lua/lua.h"
+#include "lua/lualib.h"
+#include "lua/lauxlib.h"
+}
+
 namespace rz
 {
 namespace detail
@@ -17,31 +24,31 @@ template<typename TRet>
 static TRet get_at_index(lua_State *l, int i);
 
 template<>
-static int get_at_index(lua_State *l, int i)
+int get_at_index(lua_State *l, int i)
 {
     return static_cast<int>(lua_tointeger(l, i));
 }
 
 template<>
-static unsigned int get_at_index(lua_State *l, int i)
+unsigned int get_at_index(lua_State *l, int i)
 {
     return static_cast<unsigned int>(lua_tointeger(l, i));
 }
 
 template<>
-static float get_at_index(lua_State *l, int i)
+float get_at_index(lua_State *l, int i)
 {
     return static_cast<float>(lua_tonumber(l, i));
 }
 
 template<>
-static std::string get_at_index(lua_State *l, int i)
+std::string get_at_index(lua_State *l, int i)
 {
     return lua_tostring(l, i);
 }
 
 template<>
-static bool get_at_index(lua_State *l, int i)
+bool get_at_index(lua_State *l, int i)
 {
     return (bool)lua_toboolean(l, i);
 }
