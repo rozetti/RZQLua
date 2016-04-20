@@ -87,6 +87,9 @@ SquircleRenderer::SquircleRenderer() :
     m_program(0),
     m_lua(":/scenegraph/openglunderqml/squircle.lua")
 {
+    auto &squircle = m_lua.lua().classes().declare("squircle", *this);
+    squircle.declare_function("bindProgram", &SquircleRenderer::bindProgram);
+
 }
 
 SquircleRenderer::~SquircleRenderer()
@@ -107,6 +110,25 @@ void Squircle::sync()
     m_renderer->setWindow(window());
 }
 //! [9]
+
+float values[] = {
+    -1, -1,
+    1, -1,
+    -1, 1,
+    1, 1
+};
+
+void SquircleRenderer::bindProgram()
+{
+    m_program->enableAttributeArray(0);
+    m_program->setAttributeArray(0, GL_FLOAT, values, 2);
+    m_program->setUniformValue("t", (float) m_t);
+}
+
+void SquircleRenderer::unbindProgram()
+{
+    m_program->disableAttributeArray(0);
+}
 
 //! [4]
 void SquircleRenderer::paint()
@@ -133,25 +155,15 @@ void SquircleRenderer::paint()
         m_program->bindAttributeLocation("vertices", 0);
         m_program->link();
 
+        auto &program = m_lua.lua().classes().declare("program", *m_program);
+        program.declare_function("bind", &QOpenGLShaderProgram::bind);
+        program.declare_function("release", &QOpenGLShaderProgram::release);
     }
+
 //! [4] //! [5]
-    m_program->bind();
-
-    m_program->enableAttributeArray(0);
-
-    float values[] = {
-        -1, -1,
-        1, -1,
-        -1, 1,
-        1, 1
-    };
-    m_program->setAttributeArray(0, GL_FLOAT, values, 2);
-    m_program->setUniformValue("t", (float) m_t);
-
+    m_lua.call("bind", QVariantList());
     m_lua.vcall("render", m_viewportSize.width(), m_viewportSize.height());
-
-    m_program->disableAttributeArray(0);
-    m_program->release();
+    m_lua.call("unbind", QVariantList());
 
     // Not strictly needed for this example, but generally useful for when
     // mixing with raw OpenGL.

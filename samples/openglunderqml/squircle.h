@@ -50,6 +50,8 @@ public:
     void setT(qreal t) { m_t = t; }
     void setViewportSize(const QSize &size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
+    void bindProgram();
+    void unbindProgram();
 
 public slots:
     void paint();
