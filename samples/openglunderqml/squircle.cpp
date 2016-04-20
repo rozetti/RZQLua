@@ -89,7 +89,6 @@ SquircleRenderer::SquircleRenderer() :
 {
     auto &squircle = m_lua.lua().classes().declare("squircle", *this);
     squircle.declare_function("bindProgram", &SquircleRenderer::bindProgram);
-
 }
 
 SquircleRenderer::~SquircleRenderer()
