@@ -3,16 +3,16 @@
 RZLua::RZLua() :
     m_luaState(luaL_newstate()),
     m_ownsState(true),
-    m_functions(m_luaState),
-    m_classes(m_luaState)
+    m_classes(m_luaState),
+    m_functions(m_luaState)
 {
 }
 
 RZLua::RZLua(lua_State *state) :
     m_luaState(state),
     m_ownsState(false),
-    m_functions(state),
-    m_classes(state)
+    m_classes(state),
+    m_functions(state)
 {
 }
 

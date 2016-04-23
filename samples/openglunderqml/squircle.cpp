@@ -34,8 +34,8 @@
 #include "squircle.h"
 
 #include <QtQuick/qquickwindow.h>
-#include <QtGui/QOpenGLShaderProgram>
-#include <QtGui/QOpenGLContext>
+
+#include "RZQLua_QOpenGLShaderProgram.h"
 
 //! [7]
 Squircle::Squircle()
@@ -84,17 +84,15 @@ void Squircle::cleanup()
 
 SquircleRenderer::SquircleRenderer() :
     m_t(0),
-    m_program(0),
     m_lua(":/scenegraph/openglunderqml/squircle.lua")
 {
-    auto &squircle = m_lua.lua().classes().declare("squircle", *this);
-    squircle.declare_function("bindProgram", &SquircleRenderer::bindProgram);
+    m_lua.declare_QOpenGLShaderProgram();
 
+    auto &squircle = m_lua.lua().classes().declare("squircle", *this);
 }
 
 SquircleRenderer::~SquircleRenderer()
 {
-    delete m_program;
 }
 //! [6]
 
@@ -111,62 +109,13 @@ void Squircle::sync()
 }
 //! [9]
 
-float values[] = {
-    -1, -1,
-    1, -1,
-    -1, 1,
-    1, 1
-};
-
-void SquircleRenderer::bindProgram()
-{
-    m_program->enableAttributeArray(0);
-    m_program->setAttributeArray(0, GL_FLOAT, values, 2);
-    m_program->setUniformValue("t", (float) m_t);
-}
-
-void SquircleRenderer::unbindProgram()
-{
-    m_program->disableAttributeArray(0);
-}
-
 //! [4]
 void SquircleRenderer::paint()
 {
-    if (!m_program) {
-        m_program = new QOpenGLShaderProgram();
-        m_program->addShaderFromSourceCode(QOpenGLShader::Vertex,
-                                           "attribute highp vec4 vertices;"
-                                           "varying highp vec2 coords;"
-                                           "void main() {"
-                                           "    gl_Position = vertices;"
-                                           "    coords = vertices.xy;"
-                                           "}");
-        m_program->addShaderFromSourceCode(QOpenGLShader::Fragment,
-                                           "uniform lowp float t;"
-                                           "varying highp vec2 coords;"
-                                           "void main() {"
-                                           "    lowp float i = 1. - (pow(abs(coords.x), 4.) + pow(abs(coords.y), 4.));"
-                                           "    i = smoothstep(t - 0.8, t + 0.8, i);"
-                                           "    i = floor(i * 20.) / 20.;"
-                                           "    gl_FragColor = vec4(coords * .5 + .5, i, i);"
-                                           "}");
-
-        m_program->bindAttributeLocation("vertices", 0);
-        m_program->link();
-
-        auto &program = m_lua.lua().classes().declare("program", *m_program);
-        program.declare_function("bind", &QOpenGLShaderProgram::bind);
-        program.declare_function("release", &QOpenGLShaderProgram::release);
-    }
-
 //! [4] //! [5]
-    m_lua.call("bind", QVariantList());
+    m_lua.vcall("update", m_t);
     m_lua.vcall("render", m_viewportSize.width(), m_viewportSize.height());
-    m_lua.call("unbind", QVariantList());
-
-    // Not strictly needed for this example, but generally useful for when
-    // mixing with raw OpenGL.
     m_window->resetOpenGLState();
 }
+
 //! [5]

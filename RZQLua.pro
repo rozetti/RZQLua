@@ -47,7 +47,8 @@ SOURCES += \
     lua/lzio.c \
     RZLua.cpp \
     RZQLua.cpp \
-    RZQLuaExports.cpp
+    RZQLuaExports.cpp \
+    RZQLua_QOpenGLShaderProgram.cpp
 
 HEADERS += \
     lua/lapi.h \
@@ -77,7 +78,8 @@ HEADERS += \
     lua/lzio.h \
     RZLua.h \
     RZQLua.h \
-    RZQLuaExports.h
+    RZQLuaExports.h \
+    RZQLua_QOpenGLShaderProgram.h
 
 unix {
     target.path = /usr/lib

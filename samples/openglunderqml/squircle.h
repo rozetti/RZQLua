@@ -35,7 +35,6 @@
 #define SQUIRCLE_H
 
 #include <QtQuick/QQuickItem>
-#include <QtGui/QOpenGLShaderProgram>
 
 #include "RZQLua.h"
 
@@ -50,8 +49,6 @@ public:
     void setT(qreal t) { m_t = t; }
     void setViewportSize(const QSize &size) { m_viewportSize = size; }
     void setWindow(QQuickWindow *window) { m_window = window; }
-    void bindProgram();
-    void unbindProgram();
 
 public slots:
     void paint();
@@ -59,7 +56,6 @@ public slots:
 private:
     QSize m_viewportSize;
     qreal m_t;
-    QOpenGLShaderProgram *m_program;
     QQuickWindow *m_window;
     RZQLua m_lua;
 };

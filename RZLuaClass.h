@@ -3,6 +3,7 @@
 #include <QDebug>
 #include "RZLuaFunctionBase.h"
 #include "RZLuaMemberFunction.h"
+#include <assert.h>
 
 struct RZLuaClassBase
 {
@@ -29,80 +30,85 @@ struct RZLuaClassBase
     }
 };
 
-template <typename T, typename... Funs>
+template <typename TClass>
 class RZLuaClass : public RZLuaClassBase
 {
 private:
-    T *m_nativeClass;
+    TClass *m_nativeClass;
 
 public:
-    template <typename... Args>
+    template <typename... TArgs>
     void declare_function(const char *fun_name,
-                       void(T::*func)(Args...))
+                       void(TClass::*func)(TArgs...))
     {
-        std::function<void(Args...)> closure = [this, func](Args... args)
+        std::function<void(TArgs...)> closure = [this, func](TArgs... args)
         {
             (m_nativeClass->*func)(args...);
         };
 
-        auto m = new RZLuaMemberFunction<0, void, Args...>
+        auto m = new RZLuaMemberFunction<0, void, TArgs...>
                 (m_luaState, m_className, std::string{fun_name}, closure);
 
         m_functions.emplace_back(m);
     }
 
-    template <typename Ret, typename... Args>
+    template <typename TRet, typename... TArgs>
     void declare_function(const char *func_name,
-                       Ret(T::*func)(Args...))
+                       TRet(TClass::*func)(TArgs...))
     {
-        std::function<Ret(Args...)> closure = [this, func](Args... args)
+        std::function<TRet(TArgs...)> closure = [this, func](TArgs... args)
         {
             return (m_nativeClass->*func)(args...);
         };
 
-        constexpr int arity = rz::detail::args_count<Ret>::value;
-        auto m = new RZLuaMemberFunction<arity, Ret, Args...>
+        constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
+        auto m = new RZLuaMemberFunction<number_of_return_values, TRet, TArgs...>
                 (m_luaState, m_className, std::string{func_name}, closure);
 
         m_functions.emplace_back(m);
     }
 
-    void declare_functions() {}
-
-    template <typename F, typename... Fs>
-    void declare_functions(const char *name,
-                        F func,
-                        Fs... funcs)
+    template <typename TRet, typename... TArgs, typename TBase>
+    void declare_function(const char *func_name,
+                          TRet(TBase::*func)(TArgs...),
+                          typename std::enable_if<std::is_base_of<TBase, TClass>::value >::type* dummy = 0)
     {
-        declare_function(name, func);
-        declare_functions(funcs...);
+        std::function<TRet(TArgs...)> closure = [this, func](TArgs... args)
+        {
+            return (m_nativeClass->*func)(args...);
+        };
+
+        constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
+        auto m = new RZLuaMemberFunction<number_of_return_values, TRet, TArgs...>
+                (m_luaState, m_className, std::string{func_name}, closure);
+
+        m_functions.emplace_back(m);
     }
 
-//    template <typename F, typename... Funs>
-//    RZLuaClass(lua_State *state,
-//               T *t,
-//               std::string const &class_name,
-//               std::string const &name,
-//               F func,
-//               Funs... funcs) :
-//        RZLuaClassBase(state, class_name),
-//        m_nativeClass(t)
-//    {
-//        lua_createtable(state, 0, 0);
-//        lua_setglobal(state, class_name.c_str());
-
-//        declare_functions(name.c_str(), func, funcs...);
-//    }
-
-   // template <typename T>
-    RZLuaClass(lua_State *state,
-               T *t,
-               std::string const &class_name) :
-        RZLuaClassBase(state, class_name),
-        m_nativeClass(t)
+    RZLuaClass(lua_State *L, TClass *c, std::string const &class_name) :
+        RZLuaClassBase(L, class_name),
+        m_nativeClass(c)
     {
-        lua_createtable(state, 0, 0);
-        lua_setglobal(state, class_name.c_str());
+        lua_createtable(L, 0, 0);
+        lua_setglobal(L, class_name.c_str());
+    }
+
+    RZLuaClass(lua_State *L, TClass *c, std::string const &class_name, std::string const &metatable_name) :
+        RZLuaClassBase(L, class_name),
+        m_nativeClass(c)
+    {
+        lua_getglobal(L, metatable_name.c_str());
+        if (!lua_istable(L, -1))
+        {
+            assert(false);
+        }
+
+        lua_createtable(L, 0, 0);
+        lua_setmetatable(L, -2);
+
+        lua_setglobal(L, class_name.c_str());
+
+        lua_pop(L, 1);
     }
 };
 

@@ -70,6 +70,17 @@ public:
 
         return *cl;
     }
+
+    template <typename T>
+    RZLuaClass<T> &declare(const std::string &name, T &t, std::string const &class_name)
+    {
+        auto cl = new RZLuaClass<T>{m_luaState, &t, name, class_name};
+
+        auto tmp = std::unique_ptr<RZLuaClassBase>(cl);
+        m_instances[name] = std::move(tmp);
+
+        return *cl;
+    }
 };
 
 class RZLuaFreeFunctions
@@ -93,7 +104,7 @@ public:
     template <typename TRet, typename... TArgs>
     void declare(const std::string &name, std::function<TRet(TArgs...)> fun)
     {
-        constexpr int arity = rz::detail::args_count<TRet>::value;
+        constexpr int arity = rz::detail::type_list_size<TRet>::value;
 
         auto f = new RZLuaFreeFunction<arity, TRet, TArgs...>(m_luaState, name, fun);
         auto ptr = std::unique_ptr<RZLuaFunctionBase>(f);
@@ -104,7 +115,7 @@ public:
     template <typename TRet, typename... TArgs>
     void declare(const std::string &name, TRet(*fun)(TArgs...))
     {
-        constexpr int arity = rz::detail::args_count<TRet>::value;
+        constexpr int arity = rz::detail::type_list_size<TRet>::value;
 
         auto f = new RZLuaFreeFunction<arity, TRet, TArgs...>(m_luaState, name, fun);
         auto ptr = std::unique_ptr<RZLuaFunctionBase>(f);
@@ -118,8 +129,8 @@ class RZLua
 private:
     lua_State *m_luaState;
     bool m_ownsState;
-    RZLuaFreeFunctions m_functions;
     RZLuaClasses m_classes;
+    RZLuaFreeFunctions m_functions;
 
 public:
     ~RZLua();
