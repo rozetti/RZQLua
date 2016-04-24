@@ -9,18 +9,20 @@ GL_TRIANGLE_STRIP = 0x0005
 GL_DEPTH_TEST = 0x0B71
 GL_FLOAT = 0x1406
 
-m_t = 0;
+parameter = 0;
+vertices = { -1, -1, 1, -1, -1, 1, 1, 1 }
 
-vertex_shader = [[
+vs = [[
 attribute highp vec4 vertices;
 varying highp vec2 coords;
 void main()
 {
-    gl_Position = vertices; coords = vertices.xy;
+    gl_Position = vertices;
+    coords = vertices.xy;
 }
 ]]
 
-fragment_shader = [[
+fs_1 = [[
 uniform lowp float t;
 varying highp vec2 coords;
 void main()
@@ -32,29 +34,61 @@ void main()
 }
 ]]
 
-function create_program()
-    program = new("QOpenGLShaderProgram")
+fs_2 = [[
+uniform lowp float t;
+varying highp vec2 coords;
+void main()
+{
+    lowp float i = 1. - (pow(abs(coords.x), 4.) + pow(abs(coords.y), 4.));
+    i = smoothstep(t - 0.8, t + 0.8, i);
+    i = floor(i * 20.) / 20.;
+    gl_FragColor = vec4(coords * .5 + .5, i + 2. * (t - .5), i + t - .5);
+}
+]]
+
+function create_program(vertex_shader, fragment_shader)
+    local program = new("QOpenGLShaderProgram")
+
+    debug(program.instanceName)
+
     program.addShaderFromSourceCode(1, vertex_shader)
     program.addShaderFromSourceCode(2, fragment_shader)
     program.bindAttributeLocation("vertices", 0)
     program.link()
+
+    return program
 end
 
-vertices = { -1, -1, 1, -1, -1, 1, 1, 1 }
+function create_programs()
+    program_1 = create_program(vs, fs_1)
+    program_2 = create_program(vs, fs_2)
+    current_program = program_1
+end
 
 function bind()
-    program.bind()
-    program.enableAttributeArray(0)
-    program.setAttributeArrayF(0, vertices, 2)
-    program.setUniformValueF("t", m_t)
+    current_program.bind()
+    current_program.enableAttributeArray(0)
+    current_program.setAttributeArrayF(0, vertices, 2)
+    current_program.setUniformValueF("t", parameter)
+end
+
+function unbind()
+    current_program.disableAttributeArray(0)
+    current_program.release()
 end
 
 function update(t)
-    if nil == program then
-        create_program()
+    if nil == current_program then
+        create_programs()
     end
 
-    m_t = t
+    parameter = t
+
+    if parameter < 0.5 then
+        current_program = program_1
+    else
+        current_program = program_2
+    end
 end
 
 function render(w, h)
@@ -69,11 +103,6 @@ function render(w, h)
     gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4)
 
     unbind()
-end
-
-function unbind()
-    program.disableAttributeArray(0)
-    program.release()
 end
 
 debug("loaded squircle.lua")

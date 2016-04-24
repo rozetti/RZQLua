@@ -9,7 +9,11 @@
 *.so
 *.dll
 *.dylib
-
+*.obj
+**/android-*
+*.Debug
+*.Release
+**/app_process
 # Qt-es
 
 /.qmake.cache

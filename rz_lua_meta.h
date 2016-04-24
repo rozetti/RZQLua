@@ -159,5 +159,10 @@ static inline void push(lua_State *l, char const *value)
     lua_pushstring(l, value);
 }
 
+static inline void push(lua_State *l, std::string value)
+{
+    lua_pushstring(l, value.c_str());
+}
+
 }
 }

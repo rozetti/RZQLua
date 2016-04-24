@@ -5,36 +5,36 @@
 #include "RZLuaMemberFunction.h"
 #include <assert.h>
 
-struct RZLuaClassBase
+struct RZLuaInstanceBase
 {
-    virtual ~RZLuaClassBase() {}
+    virtual ~RZLuaInstanceBase() {}
     lua_State *m_luaState;
     std::vector<std::unique_ptr<RZLuaFunctionBase>> m_functions;
-    std::string m_className;
+    std::string m_instanceName;
 
-    RZLuaClassBase(lua_State *state,
-                   std::string const &class_name) :
+    RZLuaInstanceBase(lua_State *state,
+                   std::string const &instance_name) :
         m_luaState(state),
-        m_className(class_name)
+        m_instanceName(instance_name)
     {
     }
 
-    RZLuaClassBase(RZLuaClassBase &&other) :
+    RZLuaInstanceBase(RZLuaInstanceBase &&other) :
         m_luaState(other.m_luaState),
         m_functions(std::move(other.m_functions)),
-        m_className(other.m_className)
+        m_instanceName(other.m_instanceName)
     {
         other.m_luaState = 0;
         other.m_functions.clear();
-        other.m_className.clear();
+        other.m_instanceName.clear();
     }
 };
 
 template <typename TClass>
-class RZLuaClass : public RZLuaClassBase
+class RZLuaInstance : public RZLuaInstanceBase
 {
 private:
-    TClass *m_nativeClass;
+    TClass *m_nativeInstance;
 
 public:
     template <typename... TArgs>
@@ -43,11 +43,11 @@ public:
     {
         std::function<void(TArgs...)> closure = [this, func](TArgs... args)
         {
-            (m_nativeClass->*func)(args...);
+            (m_nativeInstance->*func)(args...);
         };
 
         auto m = new RZLuaMemberFunction<0, void, TArgs...>
-                (m_luaState, m_className, std::string{fun_name}, closure);
+                (m_luaState, m_instanceName, std::string{fun_name}, closure);
 
         m_functions.emplace_back(m);
     }
@@ -58,12 +58,12 @@ public:
     {
         std::function<TRet(TArgs...)> closure = [this, func](TArgs... args)
         {
-            return (m_nativeClass->*func)(args...);
+            return (m_nativeInstance->*func)(args...);
         };
 
         constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
         auto m = new RZLuaMemberFunction<number_of_return_values, TRet, TArgs...>
-                (m_luaState, m_className, std::string{func_name}, closure);
+                (m_luaState, m_instanceName, std::string{func_name}, closure);
 
         m_functions.emplace_back(m);
     }
@@ -75,40 +75,45 @@ public:
     {
         std::function<TRet(TArgs...)> closure = [this, func](TArgs... args)
         {
-            return (m_nativeClass->*func)(args...);
+            return (m_nativeInstance->*func)(args...);
         };
 
         constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
         auto m = new RZLuaMemberFunction<number_of_return_values, TRet, TArgs...>
-                (m_luaState, m_className, std::string{func_name}, closure);
+                (m_luaState, m_instanceName, std::string{func_name}, closure);
 
         m_functions.emplace_back(m);
     }
 
-    RZLuaClass(lua_State *L, TClass *c, std::string const &class_name) :
-        RZLuaClassBase(L, class_name),
-        m_nativeClass(c)
+    RZLuaInstance(lua_State *L, TClass *instance, std::string const &instance_name) :
+        RZLuaInstanceBase(L, instance_name),
+        m_nativeInstance(instance)
     {
         lua_createtable(L, 0, 0);
-        lua_setglobal(L, class_name.c_str());
+
+        lua_pushstring(L, "__index");
+        lua_pushvalue(L, -2);
+        lua_settable(L, -3);
+
+        lua_setglobal(L, instance_name.c_str());
     }
 
-    RZLuaClass(lua_State *L, TClass *c, std::string const &class_name, std::string const &metatable_name) :
-        RZLuaClassBase(L, class_name),
-        m_nativeClass(c)
-    {
-        lua_getglobal(L, metatable_name.c_str());
-        if (!lua_istable(L, -1))
-        {
-            assert(false);
-        }
+//    RZLuaInstance(lua_State *L, TClass *instance, std::string const &instance_name, std::string const &metatable_name) :
+//        RZLuaInstanceBase(L, instance_name),
+//        m_nativeInstance(instance)
+//    {
+//        lua_getglobal(L, metatable_name.c_str());
+//        if (!lua_istable(L, -1))
+//        {
+//            assert(false);
+//        }
 
-        lua_createtable(L, 0, 0);
-        lua_setmetatable(L, -2);
+//        lua_createtable(L, 0, 0);
+//        lua_setmetatable(L, -2);
 
-        lua_setglobal(L, class_name.c_str());
+//        lua_setglobal(L, instance_name.c_str());
 
-        lua_pop(L, 1);
-    }
+//        lua_pop(L, 1);
+//    }
 };
 

@@ -3,7 +3,6 @@
 RZQLua_QOpenGLShaderProgram::RZQLua_QOpenGLShaderProgram(QObject *parent) :
     QOpenGLShaderProgram(parent)
 {
-
 }
 
 void RZQLua_QOpenGLShaderProgram::setAttributeArrayF(int location,
@@ -11,11 +10,11 @@ void RZQLua_QOpenGLShaderProgram::setAttributeArrayF(int location,
                                                      int tupleSize,
                                                      int stride)
 {
-    m_floats = floats;
+    m_floatsStorage = floats;
 
-    setAttributeArray(location,
-                      GL_FLOAT,
-                      m_floats.data(),
-                      tupleSize,
-                      stride);
+    QOpenGLShaderProgram::setAttributeArray(location,
+                                            GL_FLOAT,
+                                            m_floatsStorage.data(),
+                                            tupleSize,
+                                            stride);
 }

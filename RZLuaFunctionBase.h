@@ -17,11 +17,11 @@ public:
     {
     }
 
-    RZLuaFunctionBase(lua_State *state,
+    RZLuaFunctionBase(lua_State *L,
             std::string const &className,
             std::string const &functionName,
             std::string const &desc) :
-        m_luaState(state),
+        m_luaState(L),
         m_className(className),
         m_functionName(functionName),
         m_desc(desc)
@@ -44,7 +44,7 @@ public:
         return ss.str();
     }
 
-    virtual int dispatch(lua_State *l) = 0;
+    virtual int dispatch(lua_State *) = 0;
 
     virtual ~RZLuaFunctionBase()
     {
@@ -64,12 +64,12 @@ protected:
     type m_function;
 
 public:
-    RZLuaFunctionBaseT(lua_State *&l,
+    RZLuaFunctionBaseT(lua_State *L,
                  std::string const &className,
                  std::string const &functionName,
                  type function,
              std::string const &desc) :
-        RZLuaFunctionBase(l, className, functionName, desc), m_function(function)
+        RZLuaFunctionBase(L, className, functionName, desc), m_function(function)
     {
     }
 

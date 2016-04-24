@@ -7,18 +7,18 @@ template <int N, typename TRet, typename... TArgs>
 class RZLuaMemberFunctionBase : public RZLuaFunctionBaseT<N, TRet, TArgs...>
 {
 public:
-    RZLuaMemberFunctionBase(lua_State *&l,
+    RZLuaMemberFunctionBase(lua_State *L,
                  std::string const &className,
                  std::string const &functionName,
                  typename RZLuaFunctionBaseT<N, TRet, TArgs...>::type fun,
                  std::string const &desc) :
-        RZLuaFunctionBaseT<N, TRet, TArgs...>(l, className, functionName, fun, desc)
+        RZLuaFunctionBaseT<N, TRet, TArgs...>(L, className, functionName, fun, desc)
     {
-        lua_getglobal(l, className.c_str());
-        lua_pushlightuserdata(l, (void *)static_cast<RZLuaFunctionBase *>(this));
-        lua_pushcclosure(l, &dispatcher, 1);
-        lua_setfield(l, -2, functionName.c_str());
-        lua_pop(l, 1);
+        lua_getglobal(L, className.c_str());
+        lua_pushlightuserdata(L, (void *)static_cast<RZLuaFunctionBase *>(this));
+        lua_pushcclosure(L, &dispatcher, 1);
+        lua_setfield(L, -2, functionName.c_str());
+        lua_pop(L, 1);
     }
 
 //    RZLuaMemberFunctionBase(RZLuaMemberFunctionBase &&other) :

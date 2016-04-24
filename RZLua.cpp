@@ -3,7 +3,7 @@
 RZLua::RZLua() :
     m_luaState(luaL_newstate()),
     m_ownsState(true),
-    m_classes(m_luaState),
+    m_instances(m_luaState),
     m_functions(m_luaState)
 {
 }
@@ -11,7 +11,7 @@ RZLua::RZLua() :
 RZLua::RZLua(lua_State *state) :
     m_luaState(state),
     m_ownsState(false),
-    m_classes(state),
+    m_instances(state),
     m_functions(state)
 {
 }
@@ -26,7 +26,6 @@ RZLua::~RZLua()
     }
 }
 
-// todo crz: move this
 int dispatcher(lua_State *L)
 {
     auto upvalue = lua_touserdata(L, lua_upvalueindex(1));

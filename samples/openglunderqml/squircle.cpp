@@ -35,8 +35,6 @@
 
 #include <QtQuick/qquickwindow.h>
 
-#include "RZQLua_QOpenGLShaderProgram.h"
-
 //! [7]
 Squircle::Squircle()
     : m_t(0)
@@ -86,9 +84,6 @@ SquircleRenderer::SquircleRenderer() :
     m_t(0),
     m_lua(":/scenegraph/openglunderqml/squircle.lua")
 {
-    m_lua.declare_QOpenGLShaderProgram();
-
-    auto &squircle = m_lua.lua().classes().declare("squircle", *this);
 }
 
 SquircleRenderer::~SquircleRenderer()

@@ -2,46 +2,39 @@
 
 #include "RZLua.h"
 #include "RZQLuaExports.h"
-#include "rz_qlua_meta.h"
-
-#include <QtGui/QOpenGLFunctions>
-//#include <QtGui/QOpenGLShaderProgram>
-
-class RZQLua_QOpenGLShaderProgram;
 
 class RZQLua
 {
     RZLua m_lua;
     RZQLuaExports m_exports;
-    QOpenGLFunctions m_gl;
 
 public:
     RZQLua();
-    RZQLua(QString const &file);
+    RZQLua(std::string const &file);
     ~RZQLua() {}
 
     RZLua &lua() { return m_lua; }
 
     template <typename... TArgs>
-    QVariantList vcall(QString const &function, TArgs...);
+    QVariantList vcall(std::string const &function_name, TArgs...);
 
-    QVariantList call(QString const &function, QVariantList const &args);
-    void call(const QString &function);
+    QVariantList call(std::string const &function_name, QVariantList const &args);
+    void call(std::string const &function_name);
 
-    void doFile(QString const &filename);
+    void doFile(std::string const &filename);
 
-    void declare_debug(const QString &name);
-    void declare_gl(const QString &name);
-    void declare_shader_program_instance(const QString &name, RZQLua_QOpenGLShaderProgram &program);
-    void declare_QOpenGLShaderProgram();
-    void new_QOpenGLShaderProgram();
+    int new_object();
 };
 
+#include "rz_qlua_meta.h"
+
 template <typename... TArgs>
-QVariantList RZQLua::vcall(QString const &function, TArgs... args)
+QVariantList RZQLua::vcall(std::string const &function_name, TArgs... args)
 {
     QVariantList list;
     rz::detail::build_args_list(list, args...);
-    return call(function, list);
+    return call(function_name, list);
 }
+
+
 
