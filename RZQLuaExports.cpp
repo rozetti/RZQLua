@@ -1,17 +1,27 @@
 #include "RZQLuaExports.h"
-#include "RZQLua.h"
-#include "RZQLua_QOpenGLShaderProgram.h"
+#include "RZQLua.hpp"
+
+#include <string>
+
+#include <QUrl>
+RZ_LUA_DECLARE_CLASS(QUrl)
+#include <QtWebSockets/QWebSocket>
+RZ_LUA_DECLARE_CLASS(QWebSocket)
+#include <RZQLua_QOpenGLFunctions.h>
+RZ_LUA_DECLARE_CLASS(RZQLua_QOpenGLFunctions)
+#include <RZQLua_QOpenGLShaderProgram.h>
+RZ_LUA_DECLARE_CLASS(RZQLua_QOpenGLShaderProgram)
 
 RZQLuaExports::RZQLuaExports(RZQLua &qlua) :
     m_qlua(qlua)
 {
 }
 
-bool RZQLuaExports::export_lib(std::string lib, std::string name)
+bool RZQLuaExports::export_lib_with_name(std::string lib, std::string name)
 {
-    if ("gles20" == lib)
+    if ("QOpenGLFunctions" == lib)
     {
-        return export_gl(name);
+        return export_class<RZQLua_QOpenGLFunctions>(name);
     }
 
     if ("debug" == lib)
@@ -19,18 +29,45 @@ bool RZQLuaExports::export_lib(std::string lib, std::string name)
         return export_debug(name);
     }
 
+    if ("QWebSocket" == lib)
+    {
+        return export_class<QWebSocket>(name);
+    }
+
+    if ("QUrl" == lib)
+    {
+        return export_class<QUrl>(name);
+    }
+
+    if ("QOpenGLShaderProgram" == lib)
+    {
+        return export_class<RZQLua_QOpenGLShaderProgram>(name);
+    }
+
     return false;
 }
 
-template<typename TClass>
-bool RZQLuaExports::bind_instance(TClass *instance, std::string const &instance_name)
+bool RZQLuaExports::export_lib(std::string lib)
 {
-    auto const L = m_qlua.lua().state();
+    return export_lib_with_name(lib, lib);
+}
+
+template<typename TClass>
+RZLuaInstance<TClass> *RZQLuaExports::bind_instance(TClass *instance)
+{
+    std::stringstream ss;
+    ss << ClassName<TClass>() << ":" << new_instance_id();
+    auto instance_name = ss.str();
+
+    auto const &L = m_qlua.lua().state();
 
     auto &instance_meta = m_qlua.lua().instances().bind_instance(instance_name, instance);
 
     declare_instance_functions(instance_meta);
-    *static_cast<TClass**>(lua_newuserdata(L, sizeof(TClass))) = instance;
+
+    auto ud = lua_newuserdata(L, sizeof(TClass *));
+    auto pi = static_cast<TClass**>(ud);
+    *pi = instance;
 
     lua_getglobal(L, instance_name.c_str());
     if (!lua_istable(L, -1))
@@ -44,36 +81,14 @@ bool RZQLuaExports::bind_instance(TClass *instance, std::string const &instance_
 
     lua_setmetatable(L, -2);
 
-    return true;
+    return &instance_meta;
 }
 
-bool RZQLuaExports::export_new_instance(std::string const &class_name, std::string const &instance_name)
+int RZQLuaExports::new_instance_id()
 {
-    if ("QOpenGLShaderProgram" == class_name)
-    {
-        return bind_instance(new RZQLua_QOpenGLShaderProgram(nullptr), instance_name);
-    }
+    static int id = 0;
 
-    return false;
-}
-
-bool RZQLuaExports::export_gl(std::string const &name)
-{
-    m_gl.initializeOpenGLFunctions();
-
-#define RZQLUA_DECLARE_GL_FUNCTION(F) gl.declare_function(#F, &QOpenGLFunctions::F);
-
-    auto &gl = m_qlua.lua().instances().bind_instance(name, &m_gl);
-
-    RZQLUA_DECLARE_GL_FUNCTION(glClearColor);
-    RZQLUA_DECLARE_GL_FUNCTION(glClear);
-    RZQLUA_DECLARE_GL_FUNCTION(glEnable);
-    RZQLUA_DECLARE_GL_FUNCTION(glBlendFunc);
-    RZQLUA_DECLARE_GL_FUNCTION(glDrawArrays);
-    RZQLUA_DECLARE_GL_FUNCTION(glDisable);
-    RZQLUA_DECLARE_GL_FUNCTION(glViewport);
-
-    return true;
+    return ++id;
 }
 
 void debug(QString message)
@@ -81,26 +96,39 @@ void debug(QString message)
     qDebug() << message;
 }
 
-bool RZQLuaExports::export_debug(std::string const &name)
+bool RZQLuaExports::export_debug(std::string const &/*name*/)
 {
     m_qlua.lua().functions().declare("debug", &debug);
 
     return true;
 }
 
-template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<RZQLua_QOpenGLShaderProgram> &instance)
+template <typename TClass>
+bool RZQLuaExports::export_class(std::string const &name)
 {
-    instance.declare_function("bind", &QOpenGLShaderProgram::bind);
-    instance.declare_function("release", &QOpenGLShaderProgram::release);
-    instance.declare_function("enableAttributeArray", (void (QOpenGLShaderProgram::*)(int))&QOpenGLShaderProgram::enableAttributeArray);
-    instance.declare_function("disableAttributeArray", (void (QOpenGLShaderProgram::*)(int))&QOpenGLShaderProgram::disableAttributeArray);
+    auto ctor = get_ctor<TClass>();
 
-    instance.declare_function("addShaderFromSourceCode", (bool (QOpenGLShaderProgram::*)(QOpenGLShader::ShaderType, char const *))&QOpenGLShaderProgram::addShaderFromSourceCode);
-    instance.declare_function("bindAttributeLocation", (void (QOpenGLShaderProgram::*)(char const *, int))&QOpenGLShaderProgram::bindAttributeLocation);
-    instance.declare_function("link", &QOpenGLShaderProgram::link);
+    auto L = m_qlua.lua().state();
 
-    instance.declare_function("setUniformValueF", (void (QOpenGLShaderProgram::*)(char const *, float))&QOpenGLShaderProgram::setUniformValue);
-    instance.declare_function("setAttributeArrayF", &RZQLua_QOpenGLShaderProgram::setAttributeArrayF);
+    auto &cl = m_qlua.lua().classes().declare_class<TClass>(name);
+
+    cl.push_table();
+
+    lua_pushstring(L, "new");
+    lua_pushlightuserdata(L, this);
+    lua_pushcclosure(L, ctor, 1);
+    lua_settable(L, -3);
+
+    lua_getmetatable(L, -1);
+
+    lua_pushstring(L, "__call");
+    lua_pushlightuserdata(L, this);
+    lua_pushcclosure(L, ctor, 1);
+    lua_settable(L, -3);
+
+    lua_pop(L, 1);
+
+    declare_class_symbols<TClass>(cl);
+
+    return true;
 }
-

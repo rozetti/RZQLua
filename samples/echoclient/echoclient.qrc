@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>echoclient.lua</file>
+        <file>debug.lua</file>
+    </qresource>
+</RCC>

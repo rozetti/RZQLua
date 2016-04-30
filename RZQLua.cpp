@@ -1,77 +1,26 @@
-#include "RZQLua.h"
+#include "RZQLua.hpp"
 
 #include <QFile>
 #include <QTextStream>
 #include <QVariant>
 #include <QVariantList>
 #include <QString>
-#include <QDebug>
 
-#include <assert.h>
-#include <sstream>
-
-#include "rz_qlua_meta.h"
-
-static int instance_number = 1;
-
-int RZQLua::new_object()
-{
-    auto class_name = lua_tostring(m_lua.state(), -1);
-
-    std::stringstream ss;
-    ss << "__mt:" << instance_number << ":" << class_name;
-    auto instance_name = ss.str();
-
-    if (!m_exports.export_new_instance(class_name, instance_name))
-    {
-        return 0;
-    }
-
-    ++instance_number;
-
-    return 1;
-}
-
-int _new_object(lua_State *L)
-{
-    auto _This = (RZQLua *)lua_touserdata(L, lua_upvalueindex(1));
-    return _This->new_object();
-}
-
-RZQLua::RZQLua() :
+RZQLua::RZQLua(std::string const &file) :
+    m_lua(*this),
     m_exports(*this)
 {
     auto &rz = m_lua.instances().bind_instance("rz", &m_exports);
     rz.declare_function("import", &RZQLuaExports::export_lib);
+    rz.declare_function("importWithName", &RZQLuaExports::export_lib_with_name);
 
-    lua_pushlightuserdata(m_lua.state(), this);
-    lua_pushcclosure(m_lua.state(), _new_object, 1);
-    lua_setglobal(m_lua.state(), "new");
-}
-
-RZQLua::RZQLua(std::string const &file) :
-    RZQLua()
-{
-    doFile(file);
-}
-
-void RZQLua::call(std::string const &function_name)
-{
-    auto L = m_lua.state();
-
-    lua_getglobal(L, function_name.c_str());
-    if (!lua_isfunction(L, -1))
-    {
-        assert(false);
-        return;
-    }
-
-    lua_pcall(L, 0, 0, 0);
+    m_lua.doFile(":/debug.lua");
+    m_lua.doFile(file);
 }
 
 QVariantList RZQLua::call(std::string const &function_name, QVariantList const &args)
 {
-    auto L = m_lua.state();
+    auto const &L = m_lua;
 
     lua_getglobal(L, function_name.c_str());
     assert(lua_isfunction(L, -1));
@@ -96,7 +45,7 @@ QVariantList RZQLua::call(std::string const &function_name, QVariantList const &
                 lua_pushnumber(L, arg.toDouble());
                 break;
             default:
-                qDebug() << "unhandled argument type: " << arg.typeName();
+                LOG_WARNING("unhandled argument type: " << arg.typeName());
                 assert(false);
                 break;
             }
@@ -126,7 +75,7 @@ QVariantList RZQLua::call(std::string const &function_name, QVariantList const &
             rv.append(lua_tostring(L, idx));
             break;
         default:
-            qDebug() << "unhandled return type: " << lua_typename(L, idx);
+            LOG_WARNING("unhandled return type: " << lua_typename(L, idx));
             assert(false);
             break;
         }
@@ -148,10 +97,11 @@ void RZQLua::doFile(std::string const &filename)
     QTextStream ts(&f);
     auto lua = ts.readAll();
 
-    auto rv = luaL_dostring(m_lua.state(), lua.toStdString().c_str());
+    auto rv = luaL_dostring(m_lua, lua.toStdString().c_str());
     if (rv)
     {
-        qDebug() << "lua_dostring error: " << rv;
+        auto error = lua_tostring(m_lua, -1);
+        LOG_ERROR("lua_dostring error: " << error);
     }
 }
 

@@ -4,6 +4,8 @@
 #include <QString>
 #include <QtGui/QOpenGLShaderProgram>
 #include <assert.h>
+#include <QUrl>
+#include <QtWebSockets/QWebSocket>
 
 extern "C"
 {
@@ -35,7 +37,9 @@ void build_args_list(QVariantList &list, TArg arg1, TArg arg2, TArgs... args)
 template<>
 QString get_at_index(lua_State *l, int i)
 {
-    return QString(lua_tostring(l, i));
+    auto v = QString(lua_tostring(l, i));
+    LOG_VERBOSE("get_at_index<QString>(" << i << ") -> " << v.toStdString());
+    return v;
 }
 
 template<>
@@ -52,9 +56,6 @@ std::vector<float> get_at_index(lua_State *L, int i)
     lua_pushnil(L);
     while (lua_next(L, i) != 0)
     {
-        /* ‘key’ is at index -2 and ‘value’ at index -1 */
-        //printf("%s - %s\n", lua_typename(L, lua_type(L, -2)), lua_typename(L, lua_type(L, -1)));
-
         auto f = lua_tonumber(L, -1);
         ff.push_back(f);
         lua_pop(L, 1);
@@ -64,9 +65,67 @@ std::vector<float> get_at_index(lua_State *L, int i)
 }
 
 template<>
+QUrl const &get_at_index(lua_State *L, int i)
+{
+    if (!lua_isuserdata(L, i))
+    {
+        assert(false);
+        return *(QUrl const *)nullptr;
+    }
+
+    auto ud = lua_touserdata(L, i);
+    auto pi = static_cast<QUrl **>(ud);
+    auto v = *pi;
+
+    LOG_VERBOSE("get_at_index<QUrl const &>(" << i << ") -> " << v->url().toStdString());
+
+    return *v;
+}
+
+static QString temp;
+
+template<>
+QString const &get_at_index(lua_State *L, int i)
+{
+    if (!lua_isstring(L, i))
+    {
+        LOG_ERROR("string expected");
+        assert(false);
+        temp = "";
+        return temp;
+    }
+
+    auto s = lua_tostring(L, i);
+    temp = s;
+
+    LOG_VERBOSE("get_at_index<QString const &>(" << i << ") -> " << temp.toStdString());
+
+    return temp;
+}
+
+template<>
 QOpenGLShader::ShaderType get_at_index(lua_State *l, int i)
 {
-    return (QOpenGLShader::ShaderType)lua_tointeger(l, i);
+    auto v = lua_tointeger(l, i);
+
+    LOG_VERBOSE("get_at_index<QOpenGLShader::ShaderType>(" << i << ") -> " << v);
+
+    return (QOpenGLShader::ShaderType)v;
+}
+
+template<>
+QWebSocketProtocol::CloseCode get_at_index(lua_State *l, int i)
+{
+    auto v = lua_tointeger(l, i);
+
+    LOG_VERBOSE("get_at_index<QWebSocketProtocol::CloseCode>(" << i << ") -> " << v);
+
+    return (QWebSocketProtocol::CloseCode)v;
+}
+
+static inline void push(lua_State *l, QString value)
+{
+    lua_pushstring(l, value.toStdString().c_str());
 }
 
 }

@@ -1,4 +1,4 @@
-QT += qml quick
+QT += qml quick websockets
 
 HEADERS += squircle.h
 SOURCES += squircle.cpp main.cpp

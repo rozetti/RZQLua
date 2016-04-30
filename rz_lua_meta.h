@@ -15,54 +15,70 @@ extern "C"
 #include "lua/lauxlib.h"
 }
 
+#include "rz.h"
+
 namespace rz
 {
 namespace detail
 {
 
 template<typename TRet>
-static TRet get_at_index(lua_State *l, int i);
+static TRet get_at_index(lua_State *, int);
 
 template<>
-int get_at_index(lua_State *l, int i)
+int get_at_index(lua_State *L, int i)
 {
-    return static_cast<int>(lua_tointeger(l, i));
+    auto _i = static_cast<int>(lua_tointeger(L, i));
+    LOG_VERBOSE("get_at_index<int>(" << i << ") -> " << _i);
+    return _i;
 }
 
 template<>
-unsigned int get_at_index(lua_State *l, int i)
+unsigned int get_at_index(lua_State *L, int i)
 {
-    return static_cast<unsigned int>(lua_tointeger(l, i));
+    unsigned int u = static_cast<unsigned int>(lua_tointeger(L, i));
+    LOG_VERBOSE("get_at_index<unsigned int>(" << i << ") -> " << u);
+    return u;
 }
 
 template<>
-float get_at_index(lua_State *l, int i)
+float get_at_index(lua_State *L, int i)
 {
-    return static_cast<float>(lua_tonumber(l, i));
+    auto f = static_cast<float>(lua_tonumber(L, i));
+    LOG_VERBOSE("get_at_index<float>(" << i << ") -> " << f);
+    return f;
 }
 
 template<>
-double get_at_index(lua_State *l, int i)
+double get_at_index(lua_State *L, int i)
 {
-    return lua_tonumber(l, i);
+    auto v = lua_tonumber(L, i);
+    LOG_VERBOSE("get_at_index<double>(" << i << ") -> " << v);
+    return v;
 }
 
 template<>
-std::string get_at_index(lua_State *l, int i)
+std::string get_at_index(lua_State *L, int i)
 {
-    return lua_tostring(l, i);
+    auto v = lua_tostring(L, i);
+    LOG_VERBOSE("get_at_index<std::string>(" << i << ") -> '" << v << "'");
+    return v;
 }
 
 template<>
-char const *get_at_index(lua_State *l, int i)
+char const *get_at_index(lua_State *L, int i)
 {
-    return lua_tostring(l, i);
+    auto v = lua_tostring(L, i);
+    LOG_VERBOSE("get_at_index<char const *>(" << i << ") -> '" << v << "'");
+    return v;
 }
 
 template<>
-bool get_at_index(lua_State *l, int i)
+bool get_at_index(lua_State *L, int i)
 {
-    return (bool)lua_toboolean(l, i);
+    auto v = (bool)lua_toboolean(L, i);
+    LOG_VERBOSE("get_at_index<bool>(" << i << ") -> " << v);
+    return v;
 }
 
 //--------------------------------------------------------
@@ -83,9 +99,7 @@ struct index_tag<0, Indicies...>
 template <typename... TArgs, std::size_t... N>
 std::tuple<TArgs...> load_args(lua_State *L, _index_tag<N...>)
 {
-    Q_UNUSED(L);
-
-    return std::make_tuple(rz::detail::get_at_index<TArgs>(L, N+1)...);
+    return std::forward_as_tuple(rz::detail::get_at_index<TArgs>(L, N+1)...);
 }
 
 template <typename... TArgs>
@@ -162,6 +176,11 @@ static inline void push(lua_State *l, char const *value)
 static inline void push(lua_State *l, std::string value)
 {
     lua_pushstring(l, value.c_str());
+}
+
+static inline void push(lua_State *l, long long value)
+{
+    lua_pushnumber(l, value);
 }
 
 }

@@ -1,13 +1,14 @@
 #pragma once
 
 #include "rz_lua_meta.h"
-#include "RZLuaFunctionBase.h"
+#include "rz_qlua_meta.h"
+#include "RZLuaFunctionBase.hpp"
 
 template <int N, typename TRet, typename... TArgs>
 class RZLuaMemberFunctionBase : public RZLuaFunctionBaseT<N, TRet, TArgs...>
 {
 public:
-    RZLuaMemberFunctionBase(lua_State *L,
+    RZLuaMemberFunctionBase(lua_State *&L,
                  std::string const &className,
                  std::string const &functionName,
                  typename RZLuaFunctionBaseT<N, TRet, TArgs...>::type fun,
@@ -21,17 +22,8 @@ public:
         lua_pop(L, 1);
     }
 
-//    RZLuaMemberFunctionBase(RZLuaMemberFunctionBase &&other) :
-//        m_luaState(other.m_luaState),
-//        m_className(other.m_className),
-//        m_functionName(other.m_functionName),
-//        m_function(other.m_function)
-//    {
-//        other.m_luaState = nullptr;
-//        other.m_className = nullptr;
-//        other.m_functionName = nullptr;
-//        other.m_function = nullptr;
-//    }
+    RZLuaMemberFunctionBase(RZLuaMemberFunctionBase &&other) = delete;
+    RZLuaMemberFunctionBase(RZLuaMemberFunctionBase const &other) = delete;
 };
 
 template <int N, typename TRet, typename... TArgs>
@@ -50,7 +42,8 @@ public:
     {
     }
 
-    RZLuaMemberFunction(const RZLuaMemberFunction &other) = delete;
+    RZLuaMemberFunction(RZLuaMemberFunction const &other) = delete;
+    RZLuaMemberFunction(RZLuaMemberFunction &&other) = delete;
 
     int dispatch(lua_State *L)
     {
@@ -79,7 +72,8 @@ public:
     {
     }
 
-    RZLuaMemberFunction(const RZLuaMemberFunction &other) = delete;
+    RZLuaMemberFunction(RZLuaMemberFunction const &other) = delete;
+    RZLuaMemberFunction(RZLuaMemberFunction &&other) = delete;
 
     int dispatch(lua_State *L)
     {

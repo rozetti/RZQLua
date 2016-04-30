@@ -36,7 +36,7 @@
 
 #include <QtQuick/QQuickItem>
 
-#include "RZQLua.h"
+#include "RZQLua.hpp"
 
 //! [1]
 class SquircleRenderer : public QObject

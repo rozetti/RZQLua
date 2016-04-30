@@ -6,6 +6,11 @@
 
 QT       -= gui
 
+QMAKE_CXXFLAGS += -O0
+QMAKE_CXXFLAGS -= -O1
+QMAKE_CXXFLAGS -= -O2
+QMAKE_CXXFLAGS -= -O3
+
 TARGET = RZQLua
 TEMPLATE = lib
 CONFIG += staticlib
@@ -48,7 +53,12 @@ SOURCES += \
     RZLua.cpp \
     RZQLua.cpp \
     RZQLuaExports.cpp \
-    RZQLua_QOpenGLShaderProgram.cpp
+    RZQLua_QOpenGLShaderProgram.cpp \
+    RZLuaClass.cpp \
+    RZLuaInstance.cpp \
+    RZQLua_QUrl.cpp \
+    RZQLua_QWebSocket.cpp \
+    RZQLua_QOpenGLFunctions.cpp
 
 HEADERS += \
     lua/lapi.h \
@@ -76,10 +86,18 @@ HEADERS += \
     lua/lundump.h \
     lua/lvm.h \
     lua/lzio.h \
-    RZLua.h \
-    RZQLua.h \
     RZQLuaExports.h \
-    RZQLua_QOpenGLShaderProgram.h
+    RZQLua_QOpenGLShaderProgram.h \
+    rz.h \
+    RZLuaInstance.hpp \
+    RZQLua_QOpenGLFunctions.h \
+    rz_log.h \
+    RZLuaClass.hpp \
+    RZLuaFreeFunction.hpp \
+    RZLuaFunctionBase.hpp \
+    RZLuaMemberFunction.hpp \
+    RZQLua.hpp \
+    RZLua.hpp
 
 unix {
     target.path = /usr/lib

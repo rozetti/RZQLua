@@ -1,14 +1,14 @@
 #pragma once
 
-#include <QDebug>
+#include "RZLuaFunctionBase.hpp"
 
-#include "RZLuaFunctionBase.h"
+#include <map>
 
 template <int N, typename TRet, typename... TArgs>
 class RZLuaFreeFunctionBase : public RZLuaFunctionBaseT<N, TRet, TArgs...>
 {
 public:
-    RZLuaFreeFunctionBase(lua_State *l,
+    RZLuaFreeFunctionBase(lua_State *&l,
                  std::string const &className,
                  std::string const &functionName,
                  typename RZLuaFunctionBaseT<N, TRet, TArgs...>::type fun,
@@ -35,11 +35,11 @@ public:
 
     RZLuaFreeFunction(const RZLuaFreeFunction &other) = delete;
 
-    int dispatch(lua_State *l)
+    int dispatch(lua_State *L)
     {
-        std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(l);
+        std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(L);
         TRet value = rz::detail::invoke(RZLuaFunctionBaseT<0, void, TArgs...>::function(), args);
-        push(l, std::forward<TRet>(value));
+        push(L, std::forward<TRet>(value));
         return N;
     }
 };
@@ -48,22 +48,60 @@ template <typename... TArgs>
 class RZLuaFreeFunction<0, void, TArgs...> : public RZLuaFreeFunctionBase<0, void, TArgs...>
 {
 public:
-    RZLuaFreeFunction(lua_State *l, const std::string &name, void(*fun)(TArgs...)) :
+    RZLuaFreeFunction(lua_State *&l, const std::string &name, void(*fun)(TArgs...)) :
         RZLuaFreeFunction<0, void, TArgs...>(l, name,
                                              typename RZLuaFunctionBaseT<0, void, TArgs...>::type{fun}) {}
 
-    RZLuaFreeFunction(lua_State *l,
+    RZLuaFreeFunction(lua_State *&l,
                       const std::string &functionName,
                       typename RZLuaFunctionBaseT<0, void, TArgs...>::type fun) :
         RZLuaFreeFunctionBase<0, void, TArgs...>(l, "", functionName, fun, "void free function") {}
 
     RZLuaFreeFunction(const RZLuaFreeFunction &other) = delete;
 
-    int dispatch(lua_State *l)
+    int dispatch(lua_State *L)
     {
-        std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(l);
+        std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(L);
         rz::detail::invoke(RZLuaFunctionBaseT<0, void, TArgs...>::function(), args);
         return 0;
+    }
+};
+
+class RZLuaFreeFunctions
+{
+    std::map<std::string, std::unique_ptr<RZLuaFunctionBase>> m_functions;
+    lua_State *&m_luaState;
+
+public:
+    RZLuaFreeFunctions(lua_State *&state) :
+        m_luaState(state)
+    {
+        LOG_VERBOSE("RZLuaFreeFunctions ctor");
+    }
+
+    RZLuaFreeFunctions(RZLuaFreeFunctions &&other) = delete;
+    RZLuaFreeFunctions(RZLuaFreeFunctions const &other) = delete;
+
+    template <typename TRet, typename... TArgs>
+    void declare(std::string const &name, std::function<TRet(TArgs...)> fun)
+    {
+        constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
+
+        auto f = new RZLuaFreeFunction<number_of_return_values, TRet, TArgs...>(m_luaState, name, fun);
+        auto ptr = std::unique_ptr<RZLuaFunctionBase>(f);
+
+        m_functions[name] = std::move(ptr);
+    }
+
+    template <typename TRet, typename... TArgs>
+    void declare(std::string const &name, TRet(*fun)(TArgs...))
+    {
+        constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
+
+        auto f = new RZLuaFreeFunction<number_of_return_values, TRet, TArgs...>(m_luaState, name, fun);
+        auto ptr = std::unique_ptr<RZLuaFunctionBase>(f);
+
+        m_functions[name] = std::move(ptr);
     }
 };
 

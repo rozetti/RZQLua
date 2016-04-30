@@ -1,5 +1,8 @@
-rz.import("gles20", "gl")
-rz.import("debug", "")
+rz.import("debug")
+rz.import("QOpenGLFunctions")
+rz.import("QOpenGLShaderProgram")
+
+gl = QOpenGLFunctions()
 
 GL_COLOR_BUFFER_BIT = 0x00004000
 GL_BLEND = 0x0BE2
@@ -47,7 +50,7 @@ void main()
 ]]
 
 function create_program(vertex_shader, fragment_shader)
-    local program = new("QOpenGLShaderProgram")
+    local program = QOpenGLShaderProgram()
 
     debug(program.instanceName)
 
@@ -78,7 +81,7 @@ function unbind()
 end
 
 function update(t)
-    if nil == current_program then
+    if nil == program_1 then
         create_programs()
     end
 
