@@ -1,5 +1,6 @@
 #pragma once
 
+#include "rz_log.h"
 #include "rz_lua_meta.h"
 #include "rz_qlua_meta.h"
 #include "RZLuaFunctionBase.hpp"
@@ -48,6 +49,7 @@ public:
     int dispatch(lua_State *L)
     {
         std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(L);
+        LOG_VERBOSE("arguments:" << args);
         TRet value = rz::detail::invoke(RZLuaFunctionBaseT<N, TRet, TArgs...>::function(), args);
         rz::detail::push(L, std::forward<TRet>(value));
         return N;
@@ -78,6 +80,7 @@ public:
     int dispatch(lua_State *L)
     {
         std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(L);
+        LOG_VERBOSE("arguments:" << args);
         rz::detail::invoke(RZLuaFunctionBaseT<0, void, TArgs...>::function(), args);
         return 0;
     }

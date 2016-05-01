@@ -2,6 +2,8 @@
 
 // http://stackoverflow.com/questions/19415845/a-better-log-macro-using-template-metaprogramming
 
+#include "rz_tuple.hpp"
+
 #define LOG(msg) (Log(__FILE__, __LINE__, __func__, LogData<None>() << msg))
 //#define LOG(msg)
 

@@ -58,7 +58,8 @@ SOURCES += \
     RZLuaInstance.cpp \
     RZQLua_QUrl.cpp \
     RZQLua_QWebSocket.cpp \
-    RZQLua_QOpenGLFunctions.cpp
+    RZQLua_QOpenGLFunctions.cpp \
+    rz_qlua_types.cpp
 
 HEADERS += \
     lua/lapi.h \
@@ -97,7 +98,9 @@ HEADERS += \
     RZLuaFunctionBase.hpp \
     RZLuaMemberFunction.hpp \
     RZQLua.hpp \
-    RZLua.hpp
+    RZLua.hpp \
+    rz_tuple.hpp \
+    rz_qlua_types.h
 
 unix {
     target.path = /usr/lib

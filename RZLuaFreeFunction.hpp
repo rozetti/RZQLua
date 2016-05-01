@@ -38,6 +38,7 @@ public:
     int dispatch(lua_State *L)
     {
         std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(L);
+        LOG_VERBOSE("arguments:" << args);
         TRet value = rz::detail::invoke(RZLuaFunctionBaseT<0, void, TArgs...>::function(), args);
         push(L, std::forward<TRet>(value));
         return N;
@@ -62,6 +63,7 @@ public:
     int dispatch(lua_State *L)
     {
         std::tuple<TArgs...> args = rz::detail::load_args<TArgs...>(L);
+        LOG_VERBOSE("arguments:" << args);
         rz::detail::invoke(RZLuaFunctionBaseT<0, void, TArgs...>::function(), args);
         return 0;
     }
