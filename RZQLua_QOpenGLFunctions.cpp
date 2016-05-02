@@ -20,13 +20,13 @@ static int ctor(lua_State *L)
 
     auto p = new RZQLua_QOpenGLFunctions();
 
-    /*auto instance =*/ ex->bind_instance(p);
+    /*auto instance =*/ ::bind_instance(*ex, p);
 
     return true;
 }
 
 template <>
-int (*RZQLuaExports::get_ctor<RZQLua_QOpenGLFunctions>())(lua_State*)
+int (*get_ctor<RZQLua_QOpenGLFunctions>())(lua_State*)
 {
     LOG_DEBUG("RZQLua_QOpenGL get_ctor()");
 
@@ -34,7 +34,7 @@ int (*RZQLuaExports::get_ctor<RZQLua_QOpenGLFunctions>())(lua_State*)
 }
 
 template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<RZQLua_QOpenGLFunctions> &instance)
+void declare_instance_functions(RZLuaInstance<RZQLua_QOpenGLFunctions> &instance)
 {
     LOG_DEBUG("RZQLua_QOpenGL declare_instance_functions() nothing to do");
 

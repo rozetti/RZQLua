@@ -12,7 +12,7 @@ static int ctor(lua_State *L)
 
     auto p = new QWebSocket();
 
-    auto instance = ex->bind_instance(p);
+    auto instance = ::bind_instance(*ex, p);
 
     QObject::connect(p, &QWebSocket::connected, [L, instance]()
     {
@@ -50,13 +50,13 @@ static int ctor(lua_State *L)
 }
 
 template <>
-int (*RZQLuaExports::get_ctor<QWebSocket>())(lua_State*)
+int (*get_ctor<QWebSocket>())(lua_State*)
 {
     return &ctor;
 }
 
 template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<QWebSocket> &instance)
+void declare_instance_functions(RZLuaInstance<QWebSocket> &instance)
 {
     instance.declare_function("open", (void (QWebSocket::*)(QUrl const &))&QWebSocket::open);
     instance.declare_function("sendTextMessage", &QWebSocket::sendTextMessage);

@@ -134,7 +134,7 @@ public:
     {
         auto instance = new RZLuaInstance<TClass>{m_luaState, native_instance, instance_name};
 
-        auto up = std::unique_ptr<RZLuaInstanceBase>(instance);
+        auto up = std::unique_ptr<RZLuaInstance<TClass>>(instance);
         m_instances.insert(std::make_pair(instance_name, std::move(up)));
 
         return *instance;

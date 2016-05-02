@@ -13,19 +13,19 @@ static int ctor(lua_State *L)
 
     auto p = new QUrl(url);
 
-    /*auto instance =*/ ex->bind_instance(p);
+    /*auto instance =*/ ::bind_instance(*ex, p);
 
     return true;
 }
 
 template <>
-int (*RZQLuaExports::get_ctor<QUrl>())(lua_State*)
+int (*get_ctor<QUrl>())(lua_State*)
 {
     return &ctor;
 }
 
 template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<QUrl> &instance)
+void declare_instance_functions(RZLuaInstance<QUrl> &instance)
 {
     instance.declare_function("scheme", &QUrl::scheme);
 }

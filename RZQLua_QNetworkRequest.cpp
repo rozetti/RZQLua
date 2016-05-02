@@ -17,19 +17,19 @@ static int ctor(lua_State *L)
 
     auto p = new QNetworkRequest(url);
 
-    /*auto instance =*/ ex->bind_instance(p);
+    /*auto instance =*/ ::bind_instance(*ex, p);
 
     return true;
 }
 
 template <>
-int (*RZQLuaExports::get_ctor<QNetworkRequest>())(lua_State*)
+int (*get_ctor<QNetworkRequest>())(lua_State*)
 {
     return &ctor;
 }
 
 template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<QNetworkRequest> &instance)
+void declare_instance_functions(RZLuaInstance<QNetworkRequest> &instance)
 {
     //instance.declare_function("scheme", &QUrl::scheme);
 }

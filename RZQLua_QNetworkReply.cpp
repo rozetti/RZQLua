@@ -19,13 +19,13 @@
 //}
 
 template <>
-int (*RZQLuaExports::get_ctor<QNetworkReply>())(lua_State*)
+int (*get_ctor<QNetworkReply>())(lua_State*)
 {
     return nullptr;
 }
 
 template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<QNetworkReply> &instance)
+void declare_instance_functions(RZLuaInstance<QNetworkReply> &instance)
 {
     instance.declare_function("readAll", &QNetworkReply::readAll);
 }

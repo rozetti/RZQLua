@@ -62,7 +62,8 @@ SOURCES += \
     rz_qlua_types.cpp \
     RZQLua_QNetworkAccessManager.cpp \
     RZQLua_QNetworkReply.cpp \
-    RZQLua_QNetworkRequest.cpp
+    RZQLua_QNetworkRequest.cpp \
+    RZLuaExports_Qt.cpp
 
 HEADERS += \
     lua/lapi.h \
@@ -104,7 +105,8 @@ HEADERS += \
     RZLua.hpp \
     rz_tuple.hpp \
     rz_qlua_types.h \
-    RZQLua_QNetworkAccessManager.h
+    RZQLua_QNetworkAccessManager.h \
+    rz_lua_exports.h
 
 unix {
     target.path = /usr/lib

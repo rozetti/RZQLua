@@ -13,7 +13,7 @@ static int ctor(lua_State *L)
 
     auto p = new QNetworkAccessManager();
 
-    auto instance = ex->bind_instance(p);
+    auto instance = ::bind_instance(*ex, p);
 
     QObject::connect(p, &QNetworkAccessManager::finished,
                      [L, instance, ex](QNetworkReply *reply)
@@ -22,7 +22,7 @@ static int ctor(lua_State *L)
 
         if (instance->push_function("finished"))
         {
-            ex->bind_instance(reply);
+            ::bind_instance(*ex, reply);
 
             lua_pcall(L, 1, 0, 0);
         }
@@ -32,13 +32,13 @@ static int ctor(lua_State *L)
 }
 
 template <>
-int (*RZQLuaExports::get_ctor<QNetworkAccessManager>())(lua_State*)
+int (*get_ctor<QNetworkAccessManager>())(lua_State*)
 {
     return &ctor;
 }
 
 template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<QNetworkAccessManager> &instance)
+void declare_instance_functions(RZLuaInstance<QNetworkAccessManager> &instance)
 {
     instance.declare_function("get", &QNetworkAccessManager::get);
 }

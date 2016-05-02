@@ -32,19 +32,19 @@ static int ctor(lua_State *L)
 
     auto p = new RZQLua_QOpenGLShaderProgram(nullptr);
 
-    /*auto instance =*/ ex->bind_instance(p);
+    /*auto instance =*/ ::bind_instance(*ex, p);
 
     return true;
 }
 
 template <>
-int (*RZQLuaExports::get_ctor<RZQLua_QOpenGLShaderProgram>())(lua_State*)
+int (*get_ctor<RZQLua_QOpenGLShaderProgram>())(lua_State*)
 {
     return ctor;
 }
 
 template<>
-void RZQLuaExports::declare_instance_functions(RZLuaInstance<RZQLua_QOpenGLShaderProgram> &instance)
+void declare_instance_functions(RZLuaInstance<RZQLua_QOpenGLShaderProgram> &instance)
 {
     instance.declare_function("bind", &QOpenGLShaderProgram::bind);
     instance.declare_function("release", &QOpenGLShaderProgram::release);
