@@ -10,14 +10,10 @@ m = QNetworkAccessManager()
 
 m.finished = function(reply)
     debug("finished started")
-    local s = reply2.readAll()
-
+    local s = reply.readAll()
     debug("finished finished: "..s)
-    debug("reply: "..reply.instanceName)
-    debug("reply2: "..reply2.instanceName)
 end
 
-reply2 = m.get(r)
-debug("reply2: "..reply2.instanceName)
+m.get(r)
 
 debug("http.lua loaded")

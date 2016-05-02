@@ -29,7 +29,7 @@ int (*RZQLuaExports::get_ctor<QNetworkRequest>())(lua_State*)
 }
 
 template<>
-void RZLuaBase::declare_instance_functions(RZLuaInstance<QNetworkRequest> &instance)
+void RZQLuaExports::declare_instance_functions(RZLuaInstance<QNetworkRequest> &instance)
 {
     //instance.declare_function("scheme", &QUrl::scheme);
 }

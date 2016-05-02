@@ -5,6 +5,8 @@
 
 #include <QtWebSockets/QWebSocket>
 #include <QUrl>
+#include <QtNetwork/QNetworkRequest>
+#include <QByteArray>
 
 std::ostream &operator<<(std::ostream &str, QWebSocketProtocol::CloseCode const &protocol)
 {
@@ -13,9 +15,23 @@ std::ostream &operator<<(std::ostream &str, QWebSocketProtocol::CloseCode const 
     return str;
 }
 
+std::ostream &operator<<(std::ostream &str, QNetworkRequest const &o)
+{
+    str << o.url().toString().toStdString();
+
+    return str;
+}
+
 std::ostream &operator<<(std::ostream &str, QUrl const &url)
 {
     str << url.toString().toStdString();
+
+    return str;
+}
+
+std::ostream &operator<<(std::ostream &str, QByteArray const &o)
+{
+    str << "QByteArray(" << o.length() << ")";
 
     return str;
 }

@@ -25,7 +25,7 @@ int (*RZQLuaExports::get_ctor<QNetworkReply>())(lua_State*)
 }
 
 template<>
-void RZLuaBase::declare_instance_functions(RZLuaInstance<QNetworkReply> &instance)
+void RZQLuaExports::declare_instance_functions(RZLuaInstance<QNetworkReply> &instance)
 {
     instance.declare_function("readAll", &QNetworkReply::readAll);
 }

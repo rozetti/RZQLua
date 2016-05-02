@@ -59,7 +59,10 @@ SOURCES += \
     RZQLua_QUrl.cpp \
     RZQLua_QWebSocket.cpp \
     RZQLua_QOpenGLFunctions.cpp \
-    rz_qlua_types.cpp
+    rz_qlua_types.cpp \
+    RZQLua_QNetworkAccessManager.cpp \
+    RZQLua_QNetworkReply.cpp \
+    RZQLua_QNetworkRequest.cpp
 
 HEADERS += \
     lua/lapi.h \
@@ -100,7 +103,8 @@ HEADERS += \
     RZQLua.hpp \
     RZLua.hpp \
     rz_tuple.hpp \
-    rz_qlua_types.h
+    rz_qlua_types.h \
+    RZQLua_QNetworkAccessManager.h
 
 unix {
     target.path = /usr/lib

@@ -11,6 +11,12 @@ RZ_LUA_DECLARE_CLASS(QWebSocket)
 RZ_LUA_DECLARE_CLASS(RZQLua_QOpenGLFunctions)
 #include <RZQLua_QOpenGLShaderProgram.h>
 RZ_LUA_DECLARE_CLASS(RZQLua_QOpenGLShaderProgram)
+#include <QtNetwork/QNetworkAccessManager>
+RZ_LUA_DECLARE_CLASS(QNetworkAccessManager)
+#include <QtNetwork/QNetworkRequest>
+RZ_LUA_DECLARE_CLASS(QNetworkRequest)
+#include <QtNetwork/QNetworkReply>
+RZ_LUA_DECLARE_CLASS(QNetworkReply)
 
 RZQLuaExports::RZQLuaExports(RZQLua &qlua) :
     m_qlua(qlua)
@@ -19,6 +25,14 @@ RZQLuaExports::RZQLuaExports(RZQLua &qlua) :
 
 bool RZQLuaExports::export_lib_with_name(std::string lib, std::string name)
 {
+#define EXPORT(C) if (#C == lib) return export_class<C>(name);
+
+    EXPORT(QNetworkAccessManager);
+    EXPORT(QNetworkRequest);
+    EXPORT(QNetworkReply);
+
+#undef EXPORT
+
     if ("QOpenGLFunctions" == lib)
     {
         return export_class<RZQLua_QOpenGLFunctions>(name);
@@ -43,6 +57,8 @@ bool RZQLuaExports::export_lib_with_name(std::string lib, std::string name)
     {
         return export_class<RZQLua_QOpenGLShaderProgram>(name);
     }
+
+    LOG_ERROR("unknown type: " << lib);
 
     return false;
 }

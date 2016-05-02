@@ -6,6 +6,9 @@
 #include <assert.h>
 #include <QUrl>
 #include <QtWebSockets/QWebSocket>
+#include <QByteArray>
+#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
 
 extern "C"
 {
@@ -82,6 +85,25 @@ QUrl const &get_at_index(lua_State *L, int i)
     return *v;
 }
 
+template<>
+QNetworkRequest const &get_at_index(lua_State *L, int i)
+{
+    if (!lua_isuserdata(L, i))
+    {
+        assert(false);
+        return *(QNetworkRequest const *)nullptr;
+    }
+
+    auto ud = lua_touserdata(L, i);
+    auto pi = static_cast<QNetworkRequest **>(ud);
+    auto v = *pi;
+
+    LOG_DEBUG("get_at_index<QNetworkRequest const &>("
+              << i << ") -> " << v->url().toString().toStdString());
+
+    return *v;
+}
+
 static QString temp;
 
 template<>
@@ -126,6 +148,13 @@ QWebSocketProtocol::CloseCode get_at_index(lua_State *l, int i)
 static inline void push(lua_State *l, QString value)
 {
     lua_pushstring(l, value.toStdString().c_str());
+}
+
+static inline void push(lua_State *l, QByteArray const &value)
+{
+    auto len = value.length();
+    auto data = value.data();
+    lua_pushlstring(l, data, len);
 }
 
 }

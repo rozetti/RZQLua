@@ -38,7 +38,7 @@ int (*RZQLuaExports::get_ctor<QNetworkAccessManager>())(lua_State*)
 }
 
 template<>
-void RZLuaBase::declare_instance_functions(RZLuaInstance<QNetworkAccessManager> &instance)
+void RZQLuaExports::declare_instance_functions(RZLuaInstance<QNetworkAccessManager> &instance)
 {
     instance.declare_function("get", &QNetworkAccessManager::get);
 }
