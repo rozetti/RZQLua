@@ -72,7 +72,7 @@ inline void output(std::ostream& /*os*/, None)
 
 #define LOG_WARNING(M) LOG("WARNING: " << M)
 #define LOG_ERROR(M) LOG("ERROR: " << M)
-#define LOG_VERBOSE(M) //LOG("VERBOSE: " << M)
+#define LOG_VERBOSE(M) LOG("VERBOSE: " << M)
 #define LOG_DEBUG(M) LOG("DEBUG: " << M)
 
 #define LOG_SIGNAL(M) LOG_DEBUG("SIGNAL " << M)
