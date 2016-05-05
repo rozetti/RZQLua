@@ -1,5 +1,7 @@
-#include "RZQLuaExports.h"
+#include "RZLuaExports.h"
 #include "RZQLua.hpp"
+
+#include "rz_lua_exports.h"
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
@@ -7,7 +9,7 @@
 
 static int ctor(lua_State *L)
 {
-    auto ex = (RZQLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
+    auto ex = (RZLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
 
     LOG_DEBUG("QNetworkAccessManager.new()");
 
@@ -44,6 +46,6 @@ void declare_instance_functions(RZLuaInstance<QNetworkAccessManager> &instance)
 }
 
 template<>
-void RZQLuaExports::declare_class_symbols(RZLuaClass<QNetworkAccessManager> &/*clazz*/)
+void RZLuaExports::declare_class_symbols(RZLuaClass<QNetworkAccessManager> &/*clazz*/)
 {
 }

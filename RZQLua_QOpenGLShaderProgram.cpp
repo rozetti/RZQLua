@@ -1,6 +1,8 @@
 #include "RZQLua_QOpenGLShaderProgram.h"
 
-#include "RZQLuaExports.h"
+#include "rz_lua_exports.h"
+
+#include "RZLuaExports.h"
 #include "RZQLua.hpp"
 
 #include <sstream>
@@ -26,7 +28,7 @@ void RZQLua_QOpenGLShaderProgram::setAttributeArrayF(int location,
 
 static int ctor(lua_State *L)
 {
-    auto ex = (RZQLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
+    auto ex = (RZLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
 
     LOG_CTOR("QOpenGLShaderProgram()");
 
@@ -60,6 +62,6 @@ void declare_instance_functions(RZLuaInstance<RZQLua_QOpenGLShaderProgram> &inst
 }
 
 template<>
-void RZQLuaExports::declare_class_symbols(RZLuaClass<RZQLua_QOpenGLShaderProgram> &/*clazz*/)
+void RZLuaExports::declare_class_symbols(RZLuaClass<RZQLua_QOpenGLShaderProgram> &/*clazz*/)
 {
 }

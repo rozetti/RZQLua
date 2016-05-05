@@ -1,11 +1,13 @@
-#include "RZQLuaExports.h"
+#include "rz_lua_exports.h"
+
+#include "RZLuaExports.h"
 #include "RZQLua.hpp"
 
 #include <QtWebSockets/QWebSocket>
 
 static int ctor(lua_State *L)
 {
-    auto ex = (RZQLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
+    auto ex = (RZLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
 
     auto url = lua_tostring(L, -1);
 
@@ -31,6 +33,6 @@ void declare_instance_functions(RZLuaInstance<QUrl> &instance)
 }
 
 template<>
-void RZQLuaExports::declare_class_symbols(RZLuaClass<QUrl> &/*clazz*/)
+void RZLuaExports::declare_class_symbols(RZLuaClass<QUrl> &/*clazz*/)
 {
 }

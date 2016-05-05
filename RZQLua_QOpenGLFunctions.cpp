@@ -1,6 +1,8 @@
 #include "RZQLua_QOpenGLFunctions.h"
 
-#include "RZQLuaExports.h"
+#include "rz_lua_exports.h"
+
+#include "RZLuaExports.h"
 #include "RZQLua.hpp"
 
 #include "rz.h"
@@ -14,7 +16,7 @@ RZQLua_QOpenGLFunctions::RZQLua_QOpenGLFunctions()
 
 static int ctor(lua_State *L)
 {
-    auto ex = (RZQLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
+    auto ex = (RZLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
 
     LOG_DEBUG("RZQLua_QOpenGLFunctions()");
 
@@ -52,6 +54,6 @@ void declare_instance_functions(RZLuaInstance<RZQLua_QOpenGLFunctions> &instance
 }
 
 template<>
-void RZQLuaExports::declare_class_symbols(RZLuaClass<RZQLua_QOpenGLFunctions> &/*clazz*/)
+void RZLuaExports::declare_class_symbols(RZLuaClass<RZQLua_QOpenGLFunctions> &/*clazz*/)
 {
 }

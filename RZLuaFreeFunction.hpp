@@ -15,7 +15,7 @@ public:
              std::string const &desc) :
         RZLuaFunctionBaseT<N, TRet, TArgs...>(l, className, functionName, fun, desc)
     {
-        lua_pushlightuserdata(l, (void *)static_cast<RZLuaFunctionBase *>(this));
+        lua_pushlightuserdata(l, (void *)static_cast<RZLuaCallableBase *>(this));
         lua_pushcclosure(l, &dispatcher, 1);
         lua_setglobal(l, functionName.c_str());
     }
@@ -71,7 +71,7 @@ public:
 
 class RZLuaFreeFunctions
 {
-    std::map<std::string, std::unique_ptr<RZLuaFunctionBase>> m_functions;
+    std::map<std::string, std::unique_ptr<RZLuaCallableBase>> m_functions;
     lua_State *&m_luaState;
 
 public:
@@ -90,7 +90,7 @@ public:
         constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
 
         auto f = new RZLuaFreeFunction<number_of_return_values, TRet, TArgs...>(m_luaState, name, fun);
-        auto ptr = std::unique_ptr<RZLuaFunctionBase>(f);
+        auto ptr = std::unique_ptr<RZLuaCallableBase>(f);
 
         m_functions[name] = std::move(ptr);
     }
@@ -101,7 +101,7 @@ public:
         constexpr int number_of_return_values = rz::detail::type_list_size<TRet>::value;
 
         auto f = new RZLuaFreeFunction<number_of_return_values, TRet, TArgs...>(m_luaState, name, fun);
-        auto ptr = std::unique_ptr<RZLuaFunctionBase>(f);
+        auto ptr = std::unique_ptr<RZLuaCallableBase>(f);
 
         m_functions[name] = std::move(ptr);
     }

@@ -1,15 +1,31 @@
 #pragma once
 
-extern "C"
+#include "rz_lua.h"
+
+#include "RZLuaInstances.h"
+
+#include <sstream>
+#include <type_traits>
+
+template <typename TClass>
+struct class_traits
 {
-#include "lua/lua.h"
-#include "lua/lualib.h"
-#include "lua/lauxlib.h"
-}
-//struct lua_State;
+    using has_ctor = std::true_type;
+    using has_instance_methods = std::true_type;
+    using has_class_symbols = std::false_type;
+};
+
+#include "RZLuaExports.h"
+
+template <>
+struct class_traits<RZLuaExports>
+{
+    using has_ctor = std::true_type;
+    using has_instance_methods = std::true_type;
+    using has_class_symbols = std::false_type;
+};
 
 template <typename> class RZLuaInstance;
-class RZQLuaExports;
 
 template <typename TClass>
 char const *ClassName();
@@ -20,53 +36,37 @@ int (*get_ctor())(lua_State*);
 template <typename TClass>
 void declare_instance_functions(RZLuaInstance<TClass> &instance);
 
-static int id = 0;
+#include "RZLuaExports_Qt.h"
 
-#include <sstream>
+namespace detail
+{
+template <typename TClass>
+void declare_instance_functions(RZLuaInstance<TClass> &instance, std::true_type)
+{
+    LOG_VERBOSE(ClassName<TClass>() << ": declaring instance functions");
+
+    ::declare_instance_functions(instance);
+}
 
 template <typename TClass>
-RZLuaInstance<TClass> *bind_instance(RZQLuaExports &ex, TClass *instance)
+void declare_instance_functions(RZLuaInstance<TClass> &instance, std::false_type)
 {
-    std::stringstream ss;
-    ss << ClassName<TClass>() << ":" << ++id;
-    auto instance_name = ss.str();
+    (void)instance;
 
-    auto instance_meta = *(RZLuaInstance<TClass> *)nullptr;
+    LOG_VERBOSE(ClassName<TClass>() << ": no instance functions");
+}
+}
 
-    lua_State *L = nullptr;
-    //    auto const &L = m_qlua.lua().state();
+template <typename TClass>
+RZLuaInstance<TClass> *bind_instance(RZLuaExports &ex, TClass *instance);
 
-//    auto &instance_meta = m_qlua.lua().instances().bind_instance(instance_name, instance);
+template <typename TClass>
+RZLuaInstance<TClass> *bind_instance(RZLuaExports &ex, TClass *instance)
+{
+    auto &instance_meta = ex.instances().bind_instance(instance);
 
-    ::declare_instance_functions(instance_meta);
-
-    auto ud = lua_newuserdata(L, sizeof(TClass *));
-    auto pi = static_cast<TClass**>(ud);
-    *pi = instance;
-
-    lua_getglobal(L, instance_name.c_str());
-    if (!lua_istable(L, -1))
-    {
-        return false;
-    }
-
-    lua_pushstring(L, "instanceName");
-    lua_pushstring(L, instance_name.c_str());
-    lua_settable(L, -3);
-
-    lua_setmetatable(L, -2);
+    detail::declare_instance_functions(instance_meta, typename class_traits<TClass>::has_instance_methods());
 
     return &instance_meta;
 }
 
-
-#define RZ_LUA_DECLARE_CLASS(C) \
-template <> char const *ClassName<C>() { return #C; } \
-extern template void declare_instance_functions(RZLuaInstance<C> &instance); \
-template RZLuaInstance<C> *bind_instance(RZQLuaExports &, C*); \
-extern template int (*get_ctor<C>())(lua_State*);
-
-/*
-//template RZLuaInstance<C> *RZQLuaExports::bind_instance(C*); \
-//extern template int (*RZQLuaExports::get_ctor<C>())(lua_State*);
-*/

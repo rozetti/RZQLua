@@ -11,6 +11,8 @@
 
 struct lua_State;
 
+#include "RZLuaInstances.h"
+
 class RZLuaBase
 {
     lua_State *m_luaOwnedState;

@@ -47,7 +47,7 @@ int dispatcher(lua_State *L)
     }
 
     auto upvalue = lua_touserdata(L, lua_upvalueindex(1));
-    RZLuaFunctionBase *function = (RZLuaFunctionBase *)upvalue;
+    RZLuaCallableBase *function = (RZLuaCallableBase *)upvalue;
     return function->dispatch(L);
 }
 

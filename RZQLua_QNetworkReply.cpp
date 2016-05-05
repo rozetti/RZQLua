@@ -1,5 +1,7 @@
-#include "RZQLuaExports.h"
+#include "RZLuaExports.h"
 #include "RZQLua.hpp"
+
+#include "rz_lua_exports.h"
 
 #include <QtNetwork/QNetworkReply>
 
@@ -31,6 +33,6 @@ void declare_instance_functions(RZLuaInstance<QNetworkReply> &instance)
 }
 
 template<>
-void RZQLuaExports::declare_class_symbols(RZLuaClass<QNetworkReply> &/*clazz*/)
+void RZLuaExports::declare_class_symbols(RZLuaClass<QNetworkReply> &/*clazz*/)
 {
 }

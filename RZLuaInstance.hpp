@@ -2,30 +2,15 @@
 
 #include <vector>
 #include <memory>
+#include <functional>
 
-#include "rz.h"
+#include "rz_log.h"
+
+#include "RZLuaInstanceBase.h"
 #include "RZLuaMemberFunction.hpp"
 
 struct lua_State;
-class RZLuaFunctionBase;
-
-class RZLuaInstanceBase
-{
-protected:
-    lua_State *&m_luaState;
-    std::vector<std::unique_ptr<RZLuaFunctionBase>> m_functions;
-    std::string m_instanceName;
-
-    RZLuaInstanceBase(lua_State *&state, std::string const &instance_name);
-
-    RZLuaInstanceBase(RZLuaInstanceBase &&other) = delete;
-
-public:
-    virtual ~RZLuaInstanceBase();
-
-    bool push_metatable();
-    bool push_function(std::string const &name);
-};
+class RZLuaCallableBase;
 
 template <typename TClass>
 class RZLuaInstance : public RZLuaInstanceBase
@@ -113,30 +98,3 @@ public:
     }
 };
 
-
-class RZLuaInstances
-{
-    std::map<std::string, std::unique_ptr<RZLuaInstanceBase> > m_instances;
-    lua_State *&m_luaState;
-
-public:
-    RZLuaInstances(lua_State *&state) :
-        m_luaState(state)
-    {
-        LOG_VERBOSE("RZLuaInstances ctor");
-    }
-
-    RZLuaInstances(RZLuaInstances const &other) = delete;
-    RZLuaInstances(RZLuaInstances &&other) = delete;
-
-    template <typename TClass>
-    RZLuaInstance<TClass> &bind_instance(std::string const &instance_name, TClass *native_instance)
-    {
-        auto instance = new RZLuaInstance<TClass>{m_luaState, native_instance, instance_name};
-
-        auto up = std::unique_ptr<RZLuaInstance<TClass>>(instance);
-        m_instances.insert(std::make_pair(instance_name, std::move(up)));
-
-        return *instance;
-    }
-};

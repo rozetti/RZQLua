@@ -12,7 +12,7 @@ class RZLuaClassBase
 {
 protected:
     lua_State *&m_luaState;
-    std::vector<std::unique_ptr<RZLuaFunctionBase>> m_functions;
+    std::vector<std::unique_ptr<RZLuaCallableBase>> m_functions;
     std::string m_className;
 
     RZLuaClassBase(lua_State *&state, std::string const &class_name);

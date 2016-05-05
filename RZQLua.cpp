@@ -1,4 +1,5 @@
 #include "RZQLua.hpp"
+#include "rz_lua_exports.h"
 
 #include <QFile>
 #include <QTextStream>
@@ -10,9 +11,8 @@ RZQLua::RZQLua(std::string const &file) :
     m_lua(*this),
     m_exports(*this)
 {
-    auto &rz = m_lua.instances().bind_instance("rz", &m_exports);
-    rz.declare_function("import", &RZQLuaExports::export_lib);
-    rz.declare_function("importWithName", &RZQLuaExports::export_lib_with_name);
+    ::bind_instance(m_exports, &m_exports);
+    //m_lua.instances().bind_instance(&m_exports);
 
     m_lua.doFile(":/debug.lua");
     m_lua.doFile(file);

@@ -2,14 +2,14 @@
 
 #include "rz.h"
 #include "RZLua.hpp"
-#include "RZQLuaExports.h"
+#include "RZLuaExports.h"
 
 #include "rz_qlua_meta.h"
 
 class RZQLua
 {
     RZLua<RZQLua> m_lua;
-    RZQLuaExports m_exports;
+    RZLuaExports m_exports;
 
 public:
     RZQLua(std::string const &file);

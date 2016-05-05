@@ -17,7 +17,7 @@ public:
         RZLuaFunctionBaseT<N, TRet, TArgs...>(L, className, functionName, fun, desc)
     {
         lua_getglobal(L, className.c_str());
-        lua_pushlightuserdata(L, (void *)static_cast<RZLuaFunctionBase *>(this));
+        lua_pushlightuserdata(L, (void *)static_cast<RZLuaCallableBase *>(this));
         lua_pushcclosure(L, &dispatcher, 1);
         lua_setfield(L, -2, functionName.c_str());
         lua_pop(L, 1);

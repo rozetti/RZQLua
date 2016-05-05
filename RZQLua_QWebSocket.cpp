@@ -1,5 +1,7 @@
-#include "RZQLuaExports.h"
+#include "RZLuaExports.h"
 #include "RZQLua.hpp"
+
+#include "rz_lua_exports.h"
 
 #include <QtWebSockets/QWebSocket>
 #include <string>
@@ -8,7 +10,7 @@ static int ctor(lua_State *L)
 {
     LOG_DEBUG("QWebSocket.new()");
 
-    auto ex = (RZQLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
+    auto ex = (RZLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
 
     auto p = new QWebSocket();
 
@@ -64,7 +66,7 @@ void declare_instance_functions(RZLuaInstance<QWebSocket> &instance)
 }
 
 template<>
-void RZQLuaExports::declare_class_symbols(RZLuaClass<QWebSocket> &clazz)
+void RZLuaExports::declare_class_symbols(RZLuaClass<QWebSocket> &clazz)
 {
 #define DEF(S) clazz.declare_constant(std::string(#S), (int)QWebSocketProtocol::S)
 

@@ -51,7 +51,7 @@ namespace rz
     template <typename... TArgs>
     struct tuple_printer<0, 0, TArgs...>
     {
-        static void print(std::ostream &str, std::tuple<TArgs...> const &/*tuple*/)
+        static void print(std::ostream &/*str*/, std::tuple<TArgs...> const &/*tuple*/)
         {
         }
     };

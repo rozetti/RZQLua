@@ -7,15 +7,11 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <assert.h>
 
-extern "C"
-{
-#include "lua/lua.h"
-#include "lua/lualib.h"
-#include "lua/lauxlib.h"
-}
-
-#include "rz.h"
+#include "rz_log.h"
+#include "rz_tuple.hpp"
+#include "rz_lua.h"
 
 namespace rz
 {
@@ -29,7 +25,7 @@ template<>
 int get_at_index(lua_State *L, int i)
 {
     auto _i = static_cast<int>(lua_tointeger(L, i));
-    LOG_VERBOSE("get_at_index<int>(" << i << ") -> " << _i);
+    LOG_VERBOSE("(" << i << ") -> " << _i);
     return _i;
 }
 
@@ -37,7 +33,7 @@ template<>
 unsigned int get_at_index(lua_State *L, int i)
 {
     unsigned int u = static_cast<unsigned int>(lua_tointeger(L, i));
-    LOG_VERBOSE("get_at_index<unsigned int>(" << i << ") -> " << u);
+    LOG_VERBOSE("(" << i << ") -> " << u);
     return u;
 }
 
@@ -45,7 +41,7 @@ template<>
 float get_at_index(lua_State *L, int i)
 {
     auto f = static_cast<float>(lua_tonumber(L, i));
-    LOG_VERBOSE("get_at_index<float>(" << i << ") -> " << f);
+    LOG_VERBOSE("(" << i << ") -> " << f);
     return f;
 }
 
@@ -53,7 +49,7 @@ template<>
 double get_at_index(lua_State *L, int i)
 {
     auto v = lua_tonumber(L, i);
-    LOG_VERBOSE("get_at_index<double>(" << i << ") -> " << v);
+    LOG_VERBOSE("(" << i << ") -> " << v);
     return v;
 }
 
@@ -61,7 +57,7 @@ template<>
 std::string get_at_index(lua_State *L, int i)
 {
     auto v = lua_tostring(L, i);
-    LOG_VERBOSE("get_at_index<std::string>(" << i << ") -> '" << v << "'");
+    LOG_VERBOSE("(" << i << ") -> '" << v << "'");
     return v;
 }
 
@@ -69,7 +65,7 @@ template<>
 char const *get_at_index(lua_State *L, int i)
 {
     auto v = lua_tostring(L, i);
-    LOG_VERBOSE("get_at_index<char const *>(" << i << ") -> '" << v << "'");
+    LOG_VERBOSE("(" << i << ") -> '" << v << "'");
     return v;
 }
 
@@ -77,7 +73,7 @@ template<>
 bool get_at_index(lua_State *L, int i)
 {
     auto v = (bool)lua_toboolean(L, i);
-    LOG_VERBOSE("get_at_index<bool>(" << i << ") -> " << v);
+    LOG_VERBOSE("(" << i << ") -> " << v);
     return v;
 }
 
@@ -99,6 +95,7 @@ struct index_tag<0, Indicies...>
 template <typename... TArgs, std::size_t... N>
 std::tuple<TArgs...> load_args(lua_State *L, _index_tag<N...>)
 {
+    (void)L;
     return std::forward_as_tuple(rz::detail::get_at_index<TArgs>(L, N+1)...);
 }
 

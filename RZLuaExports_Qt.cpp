@@ -1,22 +1,12 @@
-#include "rz_lua_exports.h"
+#include "RZLuaExports_Qt.h"
 
-#include <QUrl>
-RZ_LUA_DECLARE_CLASS(QUrl)
+#include "RZLuaExports_ClassName.h"
 
-#include <QtWebSockets/QWebSocket>
-RZ_LUA_DECLARE_CLASS(QWebSocket)
+DEFINE_CLASS_NAME(QUrl)
+DEFINE_CLASS_NAME(QWebSocket)
+DEFINE_CLASS_NAME(RZQLua_QOpenGLFunctions)
+DEFINE_CLASS_NAME(RZQLua_QOpenGLShaderProgram)
+DEFINE_CLASS_NAME(QNetworkAccessManager)
+DEFINE_CLASS_NAME(QNetworkRequest)
+DEFINE_CLASS_NAME(QNetworkReply)
 
-#include "RZQLua_QOpenGLFunctions.h"
-RZ_LUA_DECLARE_CLASS(RZQLua_QOpenGLFunctions)
-
-#include "RZQLua_QOpenGLShaderProgram.h"
-RZ_LUA_DECLARE_CLASS(RZQLua_QOpenGLShaderProgram)
-
-#include <QtNetwork/QNetworkAccessManager>
-RZ_LUA_DECLARE_CLASS(QNetworkAccessManager)
-
-#include <QtNetwork/QNetworkRequest>
-RZ_LUA_DECLARE_CLASS(QNetworkRequest)
-
-#include <QtNetwork/QNetworkReply>
-RZ_LUA_DECLARE_CLASS(QNetworkReply)

@@ -52,7 +52,6 @@ SOURCES += \
     lua/lzio.c \
     RZLua.cpp \
     RZQLua.cpp \
-    RZQLuaExports.cpp \
     RZQLua_QOpenGLShaderProgram.cpp \
     RZLuaClass.cpp \
     RZLuaInstance.cpp \
@@ -63,7 +62,11 @@ SOURCES += \
     RZQLua_QNetworkAccessManager.cpp \
     RZQLua_QNetworkReply.cpp \
     RZQLua_QNetworkRequest.cpp \
-    RZLuaExports_Qt.cpp
+    RZLuaExports_Qt.cpp \
+    RZLuaFunctionBase.cpp \
+    RZLuaInstanceBase.cpp \
+    RZLuaCallableBase.cpp \
+    RZLuaExports.cpp
 
 HEADERS += \
     lua/lapi.h \
@@ -91,7 +94,6 @@ HEADERS += \
     lua/lundump.h \
     lua/lvm.h \
     lua/lzio.h \
-    RZQLuaExports.h \
     RZQLua_QOpenGLShaderProgram.h \
     rz.h \
     RZLuaInstance.hpp \
@@ -106,7 +108,16 @@ HEADERS += \
     rz_tuple.hpp \
     rz_qlua_types.h \
     RZQLua_QNetworkAccessManager.h \
-    rz_lua_exports.h
+    rz_lua_exports.h \
+    rz_lua.h \
+    RZLuaInstances.h \
+    RZLuaInstanceBase.h \
+    RZLuaMemberFunctionBase.h \
+    RZLuaCallableBase.h \
+    RZLuaExports.h \
+    RZLuaExports_Qt.h \
+    RZLuaExports_ClassName.h \
+    RZLuaExports_includes.h
 
 unix {
     target.path = /usr/lib

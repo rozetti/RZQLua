@@ -1,21 +1,13 @@
 #pragma once
 
+#include "rz_lua.h"
+
 #include <QVariantList>
 #include <QString>
-#include <QtGui/QOpenGLShaderProgram>
 #include <assert.h>
-#include <QUrl>
-#include <QtWebSockets/QWebSocket>
 #include <QByteArray>
-#include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkReply>
 
-extern "C"
-{
-#include "lua/lua.h"
-#include "lua/lualib.h"
-#include "lua/lauxlib.h"
-}
+#include "RZLuaExports_includes.h"
 
 namespace rz
 {

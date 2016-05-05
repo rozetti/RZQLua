@@ -1,4 +1,4 @@
-#include "RZQLuaExports.h"
+#include "RZLuaExports.h"
 #include "RZQLua.hpp"
 
 #include <QtNetwork/QNetworkRequest>
@@ -6,10 +6,11 @@
 
 #include "rz_lua_meta.h"
 #include "rz_qlua_meta.h"
+#include "rz_lua_exports.h"
 
 static int ctor(lua_State *L)
 {
-    auto ex = (RZQLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
+    auto ex = (RZLuaExports *)lua_touserdata(L, lua_upvalueindex(1));
 
     auto url = rz::detail::get_at_index<QUrl const &>(L, -1);
 
@@ -29,12 +30,12 @@ int (*get_ctor<QNetworkRequest>())(lua_State*)
 }
 
 template<>
-void declare_instance_functions(RZLuaInstance<QNetworkRequest> &instance)
+void declare_instance_functions(RZLuaInstance<QNetworkRequest> &/*instance*/)
 {
     //instance.declare_function("scheme", &QUrl::scheme);
 }
 
 template<>
-void RZQLuaExports::declare_class_symbols(RZLuaClass<QNetworkRequest> &/*clazz*/)
+void RZLuaExports::declare_class_symbols(RZLuaClass<QNetworkRequest> &/*clazz*/)
 {
 }
